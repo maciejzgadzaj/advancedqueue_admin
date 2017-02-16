@@ -1,0 +1,6 @@
+name = Advancedqueue Admin
+description = Provides admin UI for Advancedqueue module.
+core = 7.x
+package = Other
+dependencies[] = advancedqueue
+dependencies[] = views_bulk_operations

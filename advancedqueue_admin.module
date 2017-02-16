@@ -1,0 +1,43 @@
+<?php
+
+/**
+ * Implements hook_permission().
+ */
+function advancedqueue_admin_permission() {
+  return array(
+    'administer advancedqueue_admin' => array(
+      'title' => t('Administer advancedqueue_admin'),
+      'description' => t('Administer advancedqueue_admin'),
+      'restrict access' => TRUE,
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function advancedqueue_admin_menu() {
+  $items = array();
+
+  $items['admin/structure/queues'] = array(
+    'title' => 'Queues',
+    'page callback' => 'advancedqueue_admin_pages_queue_list',
+    'access arguments' => array('administer advancedqueue_admin'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'includes/advancedqueue_admin.pages.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function advancedqueue_admin_views_api() {
+  return array(
+    'api' => 3,
+    'version' => '3.0',
+    'path' => drupal_get_path('module', 'advancedqueue_admin') . '/includes/views',
+  );
+}
+
