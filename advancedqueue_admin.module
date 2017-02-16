@@ -1,13 +1,23 @@
 <?php
 
+require_once 'includes/advancedqueue_admin.actions.inc';
+
+/**
+ * Implements hook_entity_info_alter().
+ */
+function advancedqueue_admin_entity_info_alter(&$entity_info) {
+  // Display all properties on the queue item view page.
+  $entity_info['advancedqueue_item']['extra fields controller class'] = 'EntityDefaultExtraFieldsController';
+}
+
 /**
  * Implements hook_permission().
  */
 function advancedqueue_admin_permission() {
   return array(
-    'administer advancedqueue_admin' => array(
-      'title' => t('Administer advancedqueue_admin'),
-      'description' => t('Administer advancedqueue_admin'),
+    'access advancedqueue_admin' => array(
+      'title' => t('Access Advanced Queues Admin'),
+      'description' => t('Access Advanced Queues administration features.'),
       'restrict access' => TRUE,
     ),
   );
@@ -21,11 +31,78 @@ function advancedqueue_admin_menu() {
 
   $items['admin/structure/queues'] = array(
     'title' => 'Queues',
-    'page callback' => 'advancedqueue_admin_pages_queue_list',
-    'access arguments' => array('administer advancedqueue_admin'),
+    'page callback' => 'advancedqueue_admin_queue_list',
+    'access arguments' => array('access advancedqueue_admin'),
     'type' => MENU_NORMAL_ITEM,
     'file' => 'includes/advancedqueue_admin.pages.inc',
   );
+
+  $items['admin/structure/queues/%'] = array(
+    'title callback' => 'advancedqueue_admin_queue_items_title',
+    'title arguments' => array(3),
+    'page callback' => 'advancedqueue_admin_queue_items',
+    'page arguments' => array(3),
+    'access arguments' => array('access advancedqueue_admin'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'includes/advancedqueue_admin.pages.inc',
+  );
+
+  $items['admin/structure/queues/%/items'] = array(
+    'title' => 'Items',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+  );
+
+  if (module_exists('devel')) {
+    $items['admin/structure/queues/%/devel'] = array(
+      'title' => 'Devel',
+      'page callback' => 'advancedqueue_admin_queue_devel',
+      'page arguments' => array(3),
+      'access arguments' => array('access devel information'),
+      'type' => MENU_LOCAL_TASK,
+      'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+      'file' => 'includes/advancedqueue_admin.pages.inc',
+      'weight' => 100,
+    );
+  }
+
+  $items['admin/structure/queues/%/delete'] = array(
+    'title' => 'Delete',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('advancedqueue_admin_queue_delete_confirm', 3),
+    'access arguments' => array('access advancedqueue_admin'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'includes/advancedqueue_admin.pages.inc',
+  );
+
+  $items['admin/structure/queues/%/%'] = array(
+    'title callback' => 'advancedqueue_admin_item_view_title',
+    'title arguments' => array(4),
+    'page callback' => 'advancedqueue_admin_item_view',
+    'page arguments' => array(4),
+    'access arguments' => array('access advancedqueue_admin'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'includes/advancedqueue_admin.pages.inc',
+  );
+
+  $items['admin/structure/queues/%/%/view'] = array(
+    'title' => 'View',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+  );
+
+  if (module_exists('devel')) {
+    $items['admin/structure/queues/%/%/devel'] = array(
+      'title' => 'Devel',
+      'page callback' => 'advancedqueue_admin_item_devel',
+      'page arguments' => array(4),
+      'access arguments' => array('access devel information'),
+      'type' => MENU_LOCAL_TASK,
+      'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+      'file' => 'includes/advancedqueue_admin.pages.inc',
+      'weight' => 100,
+    );
+  }
 
   return $items;
 }
@@ -41,3 +118,74 @@ function advancedqueue_admin_views_api() {
   );
 }
 
+/**
+ * Loads the queue item.
+ *
+ * @param int $item_id
+ *   ID of the queue item to load.
+ *
+ * @return object|null
+ *   A loaded queue item, or null if not found.
+ */
+function advancedqueue_admin_item_load($item_id) {
+  $item = db_select('advancedqueue', 'aq')
+    ->fields('aq')
+    ->condition('item_id', $item_id, '=')
+    ->execute()
+    ->fetch();
+
+  if (!empty($item->data)) {
+    $item->data = unserialize($item->data);
+  }
+
+  return $item;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for views_exposed_form().
+ *
+ * Updates form #action URL (by default pointing to site base_url, as the
+ * advancedqueue_admin form is embedded from advancedqueue_admin_queue_items().
+ *
+ * @see advancedqueue_admin_queue_items()
+ */
+function advancedqueue_admin_form_views_exposed_form_alter(&$form, &$form_state) {
+  if ($form_state['view']->name == 'advancedqueue_admin') {
+    $form['#action'] = '/' . current_path();
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for views_form_advancedqueue_admin_default().
+ *
+ * Updates form #action URL (by default pointing to site base_url, as the
+ * advancedqueue_admin form is embedded from advancedqueue_admin_queue_items().
+ *
+ * Also temporarily sets view's override_url to make sure that batch processing
+ * returns to the same URL it started from.
+ *
+ * @see advancedqueue_admin_queue_items()
+ */
+function advancedqueue_admin_form_views_form_advancedqueue_admin_default_alter(&$form, &$form_state) {
+  if ($form_state['build_info']['args'][0]->name == 'advancedqueue_admin') {
+    $form['#action'] = request_uri();
+    $form_state['build_info']['args'][0]->override_url = current_path();
+  }
+}
+
+/**
+ * Logs a message to the watchdog and displays it to the user.
+ *
+ * @param string $message
+ *   A message to log and display.
+ * @param object $item
+ *   An advancedqueue_item the message relates to.
+ * @param string $type
+ *   Optional type of message to log and display.
+ *   Should be either 'status' or 'error'.
+ */
+function advancedqueue_admin_log_message($message, $item, $type = 'status') {
+  $variables = array('%item_id' => $item->item_id, '%queue_name' => $item->name);
+  watchdog('advancedqueue_admin', $message, $variables, $type == 'status' ? WATCHDOG_INFO : WATCHDOG_ERROR);
+  drupal_set_message(t($message, $variables), $type);
+}
