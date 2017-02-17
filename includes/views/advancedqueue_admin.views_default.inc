@@ -19,6 +19,9 @@ function advancedqueue_admin_views_default_views() {
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
   $handler->display->display_options['use_more_always'] = FALSE;
+  if (advancedqueue_admin_db_supports_group_concat()) {
+    $handler->display->display_options['group_by'] = TRUE;
+  }
   $handler->display->display_options['access']['type'] = 'perm';
   $handler->display->display_options['access']['perm'] = 'administer advancedqueue_admin';
   $handler->display->display_options['cache']['type'] = 'none';
@@ -213,6 +216,15 @@ function advancedqueue_admin_views_default_views() {
   $handler->display->display_options['fields']['title']['table'] = 'advancedqueue';
   $handler->display->display_options['fields']['title']['field'] = 'title';
   $handler->display->display_options['fields']['title']['label'] = 'Title';
+  /* Field: GROUP_CONCAT(DISTINCT NULLIF(Queue: Tag, '') SEPARATOR ', ') */
+  if (advancedqueue_admin_db_supports_group_concat()) {
+    $handler->display->display_options['fields']['tag']['id'] = 'tag';
+    $handler->display->display_options['fields']['tag']['table'] = 'advancedqueue_tags';
+    $handler->display->display_options['fields']['tag']['field'] = 'tag';
+    $handler->display->display_options['fields']['tag']['group_type'] = 'group_concat_distinct';
+    $handler->display->display_options['fields']['tag']['alter']['alter_text'] = TRUE;
+    $handler->display->display_options['fields']['tag']['alter']['text'] = '<div class="description">[tag]</div>';
+  }
   /* Field: Queue: Created date */
   $handler->display->display_options['fields']['created']['id'] = 'created';
   $handler->display->display_options['fields']['created']['table'] = 'advancedqueue';
@@ -409,4 +421,17 @@ function advancedqueue_admin_views_default_views() {
   $views[$view->name] = $view;
 
   return $views;
+}
+
+/**
+ * Checks if current database type supports GROUP_CONCAT() function.
+ *
+ * @return bool
+ *   TRUE if current database type supports GROUP_CONCAT() function,
+ *   FALSE otherwise.
+ *
+ * @see advancedqueue_admin_views_default_views()
+ */
+function advancedqueue_admin_db_supports_group_concat() {
+  return in_array(Database::getConnection()->databaseType(), array('mysql', 'mysqli', 'sqlite'));
 }
