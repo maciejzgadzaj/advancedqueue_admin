@@ -13,5 +13,6 @@ function advancedqueue_admin_views_data_alter(&$data) {
   // 'Undefined index' PHP notices if the value does not exist in the serialized
   // Data field.
   $data['advancedqueue']['data']['field']['handler'] = 'advancedqueue_admin_handler_field_serialized';
-
+  // Add string filter for the Data field.
+  $data['advancedqueue']['data']['filter']['handler'] = 'views_handler_filter_string';
 }

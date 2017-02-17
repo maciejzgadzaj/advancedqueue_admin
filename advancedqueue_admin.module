@@ -179,6 +179,16 @@ function advancedqueue_admin_item_load($item_id) {
 function advancedqueue_admin_form_views_exposed_form_alter(&$form, &$form_state) {
   if ($form_state['view']->name == 'advancedqueue_admin') {
     $form['#action'] = '/' . current_path();
+
+    // Display some filters together in one column.
+    $form['title']['#prefix'] = '<div>';
+    $form['tag']['#suffix'] = '</div>';
+
+    $form['name']['#prefix'] = '<div>';
+    $form['status']['#suffix'] = '</div>';
+
+    $form['result']['#prefix'] = '<div>';
+    $form['data']['#suffix'] = '</div>';
   }
 }
 

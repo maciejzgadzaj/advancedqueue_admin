@@ -93,6 +93,8 @@ function advancedqueue_admin_queue_items($queue_name) {
   $view->pre_execute();
   $view->execute();
 
+  drupal_add_css(drupal_get_path('module', 'advancedqueue_admin') . '/advancedqueue_admin.css');
+
   // Return the rendered View.
   return $view->render();
 }

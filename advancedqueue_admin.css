@@ -4,3 +4,7 @@
 #advancedqueue_admin_queues .queue-in-group {
     padding-left: 2em;
 }
+
+#views-exposed-form-advancedqueue-admin-default .form-item {
+    padding: 3px 0;
+}

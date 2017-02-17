@@ -30,6 +30,9 @@ function advancedqueue_admin_views_default_views() {
   $handler->display->display_options['pager']['options']['offset'] = '0';
   $handler->display->display_options['pager']['options']['id'] = '0';
   $handler->display->display_options['pager']['options']['quantity'] = '9';
+  $handler->display->display_options['pager']['options']['expose']['items_per_page'] = TRUE;
+  $handler->display->display_options['pager']['options']['expose']['items_per_page_options'] = '10, 20, 50, 100, 200';
+  $handler->display->display_options['pager']['options']['expose']['items_per_page_options_all'] = TRUE;
   $handler->display->display_options['style_plugin'] = 'table';
   $handler->display->display_options['style_options']['columns'] = array(
     'views_bulk_operations' => 'views_bulk_operations',
@@ -295,11 +298,7 @@ function advancedqueue_admin_views_default_views() {
   $handler->display->display_options['filters']['tag']['expose']['label'] = 'Tag';
   $handler->display->display_options['filters']['tag']['expose']['operator'] = 'tag_op';
   $handler->display->display_options['filters']['tag']['expose']['identifier'] = 'tag';
-  $handler->display->display_options['filters']['tag']['expose']['remember_roles'] = array(
-    2 => '2',
-    1 => 0,
-    3 => 0,
-  );
+  $handler->display->display_options['filters']['tag']['expose']['remember_roles'] = array();
   /* Filter criterion: Queue: Created date */
   $handler->display->display_options['filters']['created']['id'] = 'created';
   $handler->display->display_options['filters']['created']['table'] = 'advancedqueue';
@@ -309,8 +308,11 @@ function advancedqueue_admin_views_default_views() {
   $handler->display->display_options['filters']['created']['exposed'] = TRUE;
   $handler->display->display_options['filters']['created']['expose']['operator_id'] = 'created_op';
   $handler->display->display_options['filters']['created']['expose']['label'] = 'Created';
+  $handler->display->display_options['filters']['created']['expose']['description'] = 'CCYY-MM-DD HH:MM:SS';
+  $handler->display->display_options['filters']['created']['expose']['use_operator'] = TRUE;
   $handler->display->display_options['filters']['created']['expose']['operator'] = 'created_op';
   $handler->display->display_options['filters']['created']['expose']['identifier'] = 'created';
+  $handler->display->display_options['filters']['created']['expose']['remember_roles'] = array();
   /* Filter criterion: User: Name (raw) */
   $handler->display->display_options['filters']['name']['id'] = 'name';
   $handler->display->display_options['filters']['name']['table'] = 'users';
@@ -323,11 +325,7 @@ function advancedqueue_admin_views_default_views() {
   $handler->display->display_options['filters']['name']['expose']['label'] = 'Owner';
   $handler->display->display_options['filters']['name']['expose']['operator'] = 'name_op';
   $handler->display->display_options['filters']['name']['expose']['identifier'] = 'name';
-  $handler->display->display_options['filters']['name']['expose']['remember_roles'] = array(
-    2 => '2',
-    1 => 0,
-    3 => 0,
-  );
+  $handler->display->display_options['filters']['name']['expose']['remember_roles'] = array();
   /* Filter criterion: Queue: Item status */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'advancedqueue';
@@ -347,8 +345,11 @@ function advancedqueue_admin_views_default_views() {
   $handler->display->display_options['filters']['processed']['exposed'] = TRUE;
   $handler->display->display_options['filters']['processed']['expose']['operator_id'] = 'processed_op';
   $handler->display->display_options['filters']['processed']['expose']['label'] = 'Processed';
+  $handler->display->display_options['filters']['processed']['expose']['description'] = 'CCYY-MM-DD HH:MM:SS';
+  $handler->display->display_options['filters']['processed']['expose']['use_operator'] = TRUE;
   $handler->display->display_options['filters']['processed']['expose']['operator'] = 'processed_op';
   $handler->display->display_options['filters']['processed']['expose']['identifier'] = 'processed';
+  $handler->display->display_options['filters']['processed']['expose']['remember_roles'] = array();
   /* Filter criterion: Queue: Result */
   $handler->display->display_options['filters']['result']['id'] = 'result';
   $handler->display->display_options['filters']['result']['table'] = 'advancedqueue';
@@ -360,6 +361,17 @@ function advancedqueue_admin_views_default_views() {
   $handler->display->display_options['filters']['result']['expose']['label'] = 'Result';
   $handler->display->display_options['filters']['result']['expose']['operator'] = 'result_op';
   $handler->display->display_options['filters']['result']['expose']['identifier'] = 'result';
+  /* Filter criterion: Queue: Item data */
+  $handler->display->display_options['filters']['data']['id'] = 'data';
+  $handler->display->display_options['filters']['data']['table'] = 'advancedqueue';
+  $handler->display->display_options['filters']['data']['field'] = 'data';
+  $handler->display->display_options['filters']['data']['operator'] = 'contains';
+  $handler->display->display_options['filters']['data']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['data']['expose']['operator_id'] = 'data_op';
+  $handler->display->display_options['filters']['data']['expose']['label'] = 'Data';
+  $handler->display->display_options['filters']['data']['expose']['operator'] = 'data_op';
+  $handler->display->display_options['filters']['data']['expose']['identifier'] = 'data';
+  $handler->display->display_options['filters']['data']['expose']['remember_roles'] = array();
   $translatables['advancedqueue_admin'] = array(
     t('Master'),
     t('more'),
