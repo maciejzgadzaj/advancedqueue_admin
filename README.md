@@ -19,12 +19,4 @@ _Advanced Queue Admin_ module is an extension to [_Advanced Queue_](https://www.
   - reset attempt counter
   - modify entity values
   - delete item
-* [_Devel_](https://www.drupal.org/project/devel) module support for displaying queue/queue item details
-* Additional _Drush_ commands:
-  - `advancedqueue-list-items` (`aqli`) - returns a list of unprocessed items in a queue
-  - `advancedqueue-delete` (`aqd`) - deletes all items from a queue
-  - `advancedqueue-delete-item` (`aqdi`) - deletes a specific item from a queue
-* Additional aliases for existing _Drush_ commands:
-  - `aqp` - for `advancedqueue-process-queue`
-  - `aql` - for `advancedqueue-list`
-
+* [_Devel_](https://www.drupal.org/project/devel) module support for displaying queue and queue item details
