@@ -84,6 +84,15 @@ function advancedqueue_admin_menu() {
     );
   }
 
+  $items['admin/structure/queues/%/process'] = array(
+    'title' => 'Process',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('advancedqueue_admin_queue_process_confirm', 3),
+    'access arguments' => array('access advancedqueue_admin'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'includes/advancedqueue_admin.pages.inc',
+  );
+
   $items['admin/structure/queues/%/delete'] = array(
     'title' => 'Delete',
     'page callback' => 'drupal_get_form',

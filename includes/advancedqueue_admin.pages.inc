@@ -52,6 +52,7 @@ function advancedqueue_admin_queue_list() {
 
       $operations = array();
       if (!empty($result[ADVANCEDQUEUE_STATUS_QUEUED])) {
+        $operations[] = l(t('process'), 'admin/structure/queues/' . $queue_name . '/process', array('attributes' => array('title' => t('Process all unprocessed items in this queue'))));
         $operations[] = l(t('delete'), 'admin/structure/queues/' . $queue_name . '/delete', array('attributes' => array('title' => t('Delete all items from this queue'))));
       }
       $row[] = implode(' - ', $operations);
@@ -158,6 +159,39 @@ function advancedqueue_admin_item_devel($item_id) {
 
   module_load_include('pages.inc', 'devel');
   return devel_load_object('advancedqueue_item', $item);
+}
+
+/**
+ * Form constructor for the queue process confirmation form.
+ *
+ * @see advancedqueue_admin_menu()
+ * @see advancedqueue_admin_queue_process_confirm_submit()
+ */
+function advancedqueue_admin_queue_process_confirm($form, &$form_state, $queue_name) {
+  $form['queue_name'] = array('#type' => 'value', '#value' => $queue_name);
+  return confirm_form($form,
+    t('Process %queue_name ?', array('%queue_name' => $queue_name)),
+    'admin/structure/queues',
+    t('Are you sure you want to process all unprocessed items in queue %queue_name ?', array('%queue_name' => $queue_name)),
+    t('Confirm'),
+    t('Cancel')
+  );
+}
+
+/**
+ * Form submission callback: executes queue process.
+ *
+ * @see advancedqueue_admin_queue_process_confirm()
+ */
+function advancedqueue_admin_queue_process_confirm_submit($form, &$form_state) {
+  if ($form_state['values']['confirm']) {
+    $queue_name = $form_state['values']['queue_name'];
+
+    module_load_include('batch.inc', 'advancedqueue_admin', 'includes/advancedqueue_admin');
+    advancedqueue_admin_batch_process(array($queue_name));
+  }
+
+  $form_state['redirect'] = 'admin/structure/queues';
 }
 
 /**
