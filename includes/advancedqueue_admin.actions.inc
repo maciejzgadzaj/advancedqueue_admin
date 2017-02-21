@@ -17,7 +17,7 @@ function advancedqueue_admin_action_info() {
   $actions['advancedqueue_admin_mark_item_as_processed_action'] = array(
     'type' => 'advancedqueue_item',
     'label' => t('Mark item as processed'),
-    'configurable' => FALSE,
+    'configurable' => TRUE,
     'vbo_configurable' => FALSE,
     'triggers' => array('any'),
   );
@@ -79,6 +79,40 @@ function advancedqueue_admin_delete_item_action($item, $context = array()) {
 }
 
 /**
+ * Action settings form callback: mark queue item as processed.
+ *
+ * @see advancedqueue_admin_action_info()
+ * @see advancedqueue_admin_mark_item_as_processed_action_submit()
+ * @see advancedqueue_admin_mark_item_as_processed_action()
+ */
+function advancedqueue_admin_mark_item_as_processed_action_form($settings, &$form_state) {
+  $form = array();
+
+  $form['status'] = array(
+    '#type' => 'select',
+    '#title' => t('New status'),
+    '#description' => t("The <em>Mark items as processed</em> action will set selected items' <em>processed</em> property to current time. It is also advised to change items' status to either <em>Processed</em> or <em>Failed</em>."),
+    '#options' => array('-' => t('- no change -')) + _advancedqueue_status_options(),
+    '#default_value' => ADVANCEDQUEUE_STATUS_SUCCESS,
+  );
+
+  return $form;
+}
+
+/**
+ * Action settings form submit callback: mark queue item as processed.
+ *
+ * @see advancedqueue_admin_action_info()
+ * @see advancedqueue_admin_mark_item_as_processed_action_form()
+ * @see advancedqueue_admin_mark_item_as_processed_action()
+ */
+function advancedqueue_admin_mark_item_as_processed_action_submit($form, &$form_state) {
+  return array(
+    'status' => $form_state['values']['status'],
+  );
+}
+
+/**
  * Action callback: mark queue item as processed.
  *
  * @param object $item
@@ -91,6 +125,10 @@ function advancedqueue_admin_delete_item_action($item, $context = array()) {
  * @ingroup actions
  */
 function advancedqueue_admin_mark_item_as_processed_action($item, $context = array()) {
+  if ($context['status'] != '-') {
+    $item->status = $context['status'];
+  }
+
   /** @var AdvancedQueue $queue */
   $queue = DrupalQueue::get($item->name);
   $queue->deleteItem($item);
