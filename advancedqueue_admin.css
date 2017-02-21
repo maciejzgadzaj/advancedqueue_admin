@@ -1,0 +1,6 @@
+#advancedqueue_admin_queues .group-header {
+    font-weight: bold;
+}
+#advancedqueue_admin_queues .queue-in-group {
+    padding-left: 2em;
+}

@@ -9,31 +9,62 @@ function advancedqueue_admin_queue_list() {
   $queues = advancedqueue_get_queues_info();
   ksort($queues);
 
+  // Group queues by their 'group' property.
+  $queues_by_group = array();
+  foreach ($queues as $queue_name => $queue_info) {
+    $group = isset($queue_info['group']) ? $queue_info['group'] : 'Ungrouped';
+    $queues_by_group[$group][$queue_name] = $queue_info;
+  }
+
   $advancedqueue_statuses = _advancedqueue_status_options();
 
   $header = array_merge(array(t('Queue')), $advancedqueue_statuses, array(''));
 
   $rows = array();
-
-  foreach (array_keys($queues) as $queue_name) {
-    $result = db_query('SELECT status, COUNT(item_id) as count FROM {advancedqueue} WHERE name = :name GROUP BY status', array(':name' => $queue_name))->fetchAllKeyed();
-
-    $row = array(
-      l($queue_name, 'admin/structure/queues/' . $queue_name),
-    );
-
-    foreach (array_keys($advancedqueue_statuses) as $status_code) {
-      $row[] = isset($result[$status_code]) ? l($result[$status_code], 'admin/structure/queues/' . $queue_name, array('query' => array('status' => $status_code))) : '-';
+  foreach ($queues_by_group as $group_name => $queues) {
+    // If we have more than one queue group defined, display group header.
+    if (count($queues_by_group) > 1) {
+      $rows[] = array(array(
+        'data' => t($group_name),
+        'colspan' => count($advancedqueue_statuses) + 2,
+        'class' => 'group-header',
+      ));
     }
 
-    $operations = array();
-    $operations[] = l(t('delete'), 'admin/structure/queues/' . $queue_name . '/delete', array('attributes' => array('title' => t('Delete all items from the queue'))));
-    $row[] = implode(' - ', $operations);
+    foreach ($queues as $queue_name => $queue_info) {
+      $result = db_query('SELECT status, COUNT(item_id) as count FROM {advancedqueue} WHERE name = :name GROUP BY status', array(':name' => $queue_name))->fetchAllKeyed();
 
-    $rows[] = $row;
+      $queue_label = l($queue_name, 'admin/structure/queues/' . $queue_name);
+      if (!empty($queue_info['description'])) {
+        $queue_label .= '<div class="description">' . $queue_info['description'] . '</div>';
+      }
+      $row = array(array(
+        'data' => $queue_label,
+      ));
+      // If we have more than one group defined, indent queue names.
+      if (count($queues_by_group) > 1) {
+        $row[0]['class'] = 'queue-in-group';
+      }
+
+      foreach (array_keys($advancedqueue_statuses) as $status_code) {
+        $row[] = isset($result[$status_code]) ? l($result[$status_code], 'admin/structure/queues/' . $queue_name, array('query' => array('status' => $status_code))) : '-';
+      }
+
+      $operations = array();
+      $operations[] = l(t('delete'), 'admin/structure/queues/' . $queue_name . '/delete', array('attributes' => array('title' => t('Delete all items from this queue'))));
+      $row[] = implode(' - ', $operations);
+
+      $rows[] = $row;
+    }
   }
 
-  return theme('table', array('header' => $header, 'rows' => $rows));
+  drupal_add_css(drupal_get_path('module', 'advancedqueue_admin') . '/advancedqueue_admin.css');
+
+  return theme('table', array(
+    'header' => $header,
+    'rows' => $rows,
+    'attributes' => array('id' => 'advancedqueue_admin_queues'),
+  ));
 }
 
 /**
