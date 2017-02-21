@@ -37,6 +37,24 @@ function advancedqueue_admin_menu() {
     'file' => 'includes/advancedqueue_admin.pages.inc',
   );
 
+  $items['admin/structure/queues/list'] = array(
+    'title' => 'Queues',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+  );
+
+  $items['admin/structure/queues/settings'] = array(
+    'title' => 'Settings',
+    'description' => 'Configure settings for the Advanced Queue module.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('advancedqueue_settings_form'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    'file' => 'advancedqueue.admin.inc',
+    'file path' => drupal_get_path('module', 'advancedqueue'),
+  );
+
   $items['admin/structure/queues/%'] = array(
     'title callback' => 'advancedqueue_admin_queue_items_title',
     'title arguments' => array(3),
