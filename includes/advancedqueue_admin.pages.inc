@@ -47,7 +47,7 @@ function advancedqueue_admin_queue_list() {
       }
 
       foreach (array_keys($advancedqueue_statuses) as $status_code) {
-        $row[] = isset($result[$status_code]) ? l($result[$status_code], 'admin/structure/queues/' . $queue_name, array('query' => array('status' => $status_code))) : '-';
+        $row[] = isset($result[$status_code]) ? l($result[$status_code], 'admin/structure/queues/' . $queue_name, array('query' => array('status[]' => $status_code))) : '-';
       }
 
       $operations = array();

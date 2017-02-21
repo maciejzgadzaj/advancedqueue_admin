@@ -181,14 +181,14 @@ function advancedqueue_admin_form_views_exposed_form_alter(&$form, &$form_state)
     $form['#action'] = '/' . current_path();
 
     // Display some filters together in one column.
-    $form['title']['#prefix'] = '<div>';
-    $form['tag']['#suffix'] = '</div>';
+    $form['item_id_key']['#prefix'] = '<div class="filter-group">';
+    $form['item_title_tag']['#suffix'] = '</div>';
 
     $form['name']['#prefix'] = '<div>';
     $form['status']['#suffix'] = '</div>';
 
-    $form['result']['#prefix'] = '<div>';
-    $form['data']['#suffix'] = '</div>';
+    $form['item_data_result']['#prefix'] = '<div>';
+    $form['items_per_page']['#suffix'] = '</div>';
   }
 }
 

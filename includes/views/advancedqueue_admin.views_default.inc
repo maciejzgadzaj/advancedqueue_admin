@@ -40,6 +40,7 @@ function advancedqueue_admin_views_default_views() {
   $handler->display->display_options['style_options']['columns'] = array(
     'views_bulk_operations' => 'views_bulk_operations',
     'item_id' => 'item_id',
+    'item_key' => 'item_id',
     'title' => 'title',
     'tag' => 'title',
     'created' => 'created',
@@ -60,6 +61,13 @@ function advancedqueue_admin_views_default_views() {
     'item_id' => array(
       'sortable' => 1,
       'default_sort_order' => 'desc',
+      'align' => '',
+      'separator' => '<br />',
+      'empty_column' => 0,
+    ),
+    'item_key' => array(
+      'sortable' => 0,
+      'default_sort_order' => 'asc',
       'align' => '',
       'separator' => '',
       'empty_column' => 0,
@@ -211,6 +219,12 @@ function advancedqueue_admin_views_default_views() {
   $handler->display->display_options['fields']['item_id']['alter']['make_link'] = TRUE;
   $handler->display->display_options['fields']['item_id']['alter']['path'] = 'admin/structure/queues/!1/[item_id]';
   $handler->display->display_options['fields']['item_id']['separator'] = '';
+  /* Field: Queue: Item key */
+  $handler->display->display_options['fields']['item_key']['id'] = 'item_key';
+  $handler->display->display_options['fields']['item_key']['table'] = 'advancedqueue';
+  $handler->display->display_options['fields']['item_key']['field'] = 'item_key';
+  $handler->display->display_options['fields']['item_key']['alter']['alter_text'] = TRUE;
+  $handler->display->display_options['fields']['item_key']['alter']['text'] = '<div class="description">[item_key]</div>';
   /* Field: Queue: Item title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'advancedqueue';
@@ -288,29 +302,36 @@ function advancedqueue_admin_views_default_views() {
   $handler->display->display_options['arguments']['name']['summary']['format'] = 'default_summary';
   $handler->display->display_options['arguments']['name']['summary_options']['items_per_page'] = '25';
   $handler->display->display_options['arguments']['name']['limit'] = '0';
-  /* Filter criterion: Queue: Item title */
-  $handler->display->display_options['filters']['title']['id'] = 'title';
-  $handler->display->display_options['filters']['title']['table'] = 'advancedqueue';
-  $handler->display->display_options['filters']['title']['field'] = 'title';
-  $handler->display->display_options['filters']['title']['operator'] = 'contains';
-  $handler->display->display_options['filters']['title']['group'] = 1;
-  $handler->display->display_options['filters']['title']['exposed'] = TRUE;
-  $handler->display->display_options['filters']['title']['expose']['operator_id'] = 'title_op';
-  $handler->display->display_options['filters']['title']['expose']['label'] = 'Title';
-  $handler->display->display_options['filters']['title']['expose']['operator'] = 'title_op';
-  $handler->display->display_options['filters']['title']['expose']['identifier'] = 'title';
-  /* Filter criterion: Queue: Tag */
-  $handler->display->display_options['filters']['tag']['id'] = 'tag';
-  $handler->display->display_options['filters']['tag']['table'] = 'advancedqueue_tags';
-  $handler->display->display_options['filters']['tag']['field'] = 'tag';
-  $handler->display->display_options['filters']['tag']['operator'] = 'contains';
-  $handler->display->display_options['filters']['tag']['group'] = 1;
-  $handler->display->display_options['filters']['tag']['exposed'] = TRUE;
-  $handler->display->display_options['filters']['tag']['expose']['operator_id'] = 'tag_op';
-  $handler->display->display_options['filters']['tag']['expose']['label'] = 'Tag';
-  $handler->display->display_options['filters']['tag']['expose']['operator'] = 'tag_op';
-  $handler->display->display_options['filters']['tag']['expose']['identifier'] = 'tag';
-  $handler->display->display_options['filters']['tag']['expose']['remember_roles'] = array();
+  /* Filter criterion: Global: Combine fields filter */
+  $handler->display->display_options['filters']['combine_item_id_key']['id'] = 'combine_item_id_key';
+  $handler->display->display_options['filters']['combine_item_id_key']['table'] = 'views';
+  $handler->display->display_options['filters']['combine_item_id_key']['field'] = 'combine';
+  $handler->display->display_options['filters']['combine_item_id_key']['operator'] = 'contains';
+  $handler->display->display_options['filters']['combine_item_id_key']['group'] = 1;
+  $handler->display->display_options['filters']['combine_item_id_key']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['combine_item_id_key']['expose']['operator_id'] = 'combine_item_id_key_op';
+  $handler->display->display_options['filters']['combine_item_id_key']['expose']['label'] = 'Item ID/key';
+  $handler->display->display_options['filters']['combine_item_id_key']['expose']['operator'] = 'combine_item_id_key_op';
+  $handler->display->display_options['filters']['combine_item_id_key']['expose']['identifier'] = 'item_id_key';
+  $handler->display->display_options['filters']['combine_item_id_key']['fields'] = array(
+    'item_id' => 'item_id',
+    'item_key' => 'item_key',
+  );
+  /* Filter criterion: Global: Combine fields filter */
+  $handler->display->display_options['filters']['combine_title_tag']['id'] = 'combine_title_tag';
+  $handler->display->display_options['filters']['combine_title_tag']['table'] = 'views';
+  $handler->display->display_options['filters']['combine_title_tag']['field'] = 'combine';
+  $handler->display->display_options['filters']['combine_title_tag']['operator'] = 'contains';
+  $handler->display->display_options['filters']['combine_title_tag']['group'] = 1;
+  $handler->display->display_options['filters']['combine_title_tag']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['combine_title_tag']['expose']['operator_id'] = 'combine_title_tag_op';
+  $handler->display->display_options['filters']['combine_title_tag']['expose']['label'] = 'Item title/tag';
+  $handler->display->display_options['filters']['combine_title_tag']['expose']['operator'] = 'combine_title_tag_op';
+  $handler->display->display_options['filters']['combine_title_tag']['expose']['identifier'] = 'item_title_tag';
+  $handler->display->display_options['filters']['combine_title_tag']['fields'] = array(
+    'title' => 'title',
+    'tag' => 'tag',
+  );
   /* Filter criterion: Queue: Created date */
   $handler->display->display_options['filters']['created']['id'] = 'created';
   $handler->display->display_options['filters']['created']['table'] = 'advancedqueue';
@@ -320,11 +341,10 @@ function advancedqueue_admin_views_default_views() {
   $handler->display->display_options['filters']['created']['exposed'] = TRUE;
   $handler->display->display_options['filters']['created']['expose']['operator_id'] = 'created_op';
   $handler->display->display_options['filters']['created']['expose']['label'] = 'Created';
-  $handler->display->display_options['filters']['created']['expose']['description'] = 'CCYY-MM-DD HH:MM:SS';
+  $handler->display->display_options['filters']['created']['expose']['description'] = 'Format: CCYY-MM-DD HH:MM:SS';
   $handler->display->display_options['filters']['created']['expose']['use_operator'] = TRUE;
   $handler->display->display_options['filters']['created']['expose']['operator'] = 'created_op';
   $handler->display->display_options['filters']['created']['expose']['identifier'] = 'created';
-  $handler->display->display_options['filters']['created']['expose']['remember_roles'] = array();
   /* Filter criterion: User: Name (raw) */
   $handler->display->display_options['filters']['name']['id'] = 'name';
   $handler->display->display_options['filters']['name']['table'] = 'users';
@@ -337,7 +357,6 @@ function advancedqueue_admin_views_default_views() {
   $handler->display->display_options['filters']['name']['expose']['label'] = 'Owner';
   $handler->display->display_options['filters']['name']['expose']['operator'] = 'name_op';
   $handler->display->display_options['filters']['name']['expose']['identifier'] = 'name';
-  $handler->display->display_options['filters']['name']['expose']['remember_roles'] = array();
   /* Filter criterion: Queue: Item status */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'advancedqueue';
@@ -348,6 +367,7 @@ function advancedqueue_admin_views_default_views() {
   $handler->display->display_options['filters']['status']['expose']['label'] = 'Status';
   $handler->display->display_options['filters']['status']['expose']['operator'] = 'status_op';
   $handler->display->display_options['filters']['status']['expose']['identifier'] = 'status';
+  $handler->display->display_options['filters']['status']['expose']['multiple'] = TRUE;
   /* Filter criterion: Queue: Processed date */
   $handler->display->display_options['filters']['processed']['id'] = 'processed';
   $handler->display->display_options['filters']['processed']['table'] = 'advancedqueue';
@@ -357,33 +377,24 @@ function advancedqueue_admin_views_default_views() {
   $handler->display->display_options['filters']['processed']['exposed'] = TRUE;
   $handler->display->display_options['filters']['processed']['expose']['operator_id'] = 'processed_op';
   $handler->display->display_options['filters']['processed']['expose']['label'] = 'Processed';
-  $handler->display->display_options['filters']['processed']['expose']['description'] = 'CCYY-MM-DD HH:MM:SS';
+  $handler->display->display_options['filters']['processed']['expose']['description'] = 'Format: CCYY-MM-DD HH:MM:SS';
   $handler->display->display_options['filters']['processed']['expose']['use_operator'] = TRUE;
   $handler->display->display_options['filters']['processed']['expose']['operator'] = 'processed_op';
   $handler->display->display_options['filters']['processed']['expose']['identifier'] = 'processed';
-  $handler->display->display_options['filters']['processed']['expose']['remember_roles'] = array();
-  /* Filter criterion: Queue: Result */
-  $handler->display->display_options['filters']['result']['id'] = 'result';
-  $handler->display->display_options['filters']['result']['table'] = 'advancedqueue';
-  $handler->display->display_options['filters']['result']['field'] = 'result';
-  $handler->display->display_options['filters']['result']['operator'] = 'contains';
-  $handler->display->display_options['filters']['result']['group'] = 1;
-  $handler->display->display_options['filters']['result']['exposed'] = TRUE;
-  $handler->display->display_options['filters']['result']['expose']['operator_id'] = 'result_op';
-  $handler->display->display_options['filters']['result']['expose']['label'] = 'Result';
-  $handler->display->display_options['filters']['result']['expose']['operator'] = 'result_op';
-  $handler->display->display_options['filters']['result']['expose']['identifier'] = 'result';
-  /* Filter criterion: Queue: Item data */
-  $handler->display->display_options['filters']['data']['id'] = 'data';
-  $handler->display->display_options['filters']['data']['table'] = 'advancedqueue';
-  $handler->display->display_options['filters']['data']['field'] = 'data';
-  $handler->display->display_options['filters']['data']['operator'] = 'contains';
-  $handler->display->display_options['filters']['data']['exposed'] = TRUE;
-  $handler->display->display_options['filters']['data']['expose']['operator_id'] = 'data_op';
-  $handler->display->display_options['filters']['data']['expose']['label'] = 'Data';
-  $handler->display->display_options['filters']['data']['expose']['operator'] = 'data_op';
-  $handler->display->display_options['filters']['data']['expose']['identifier'] = 'data';
-  $handler->display->display_options['filters']['data']['expose']['remember_roles'] = array();
+  /* Filter criterion: Global: Combine fields filter */
+  $handler->display->display_options['filters']['combine_data_result']['id'] = 'combine_data_result';
+  $handler->display->display_options['filters']['combine_data_result']['table'] = 'views';
+  $handler->display->display_options['filters']['combine_data_result']['field'] = 'combine';
+  $handler->display->display_options['filters']['combine_data_result']['operator'] = 'contains';
+  $handler->display->display_options['filters']['combine_data_result']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['combine_data_result']['expose']['operator_id'] = 'combine_data_result_op';
+  $handler->display->display_options['filters']['combine_data_result']['expose']['label'] = 'Data/result';
+  $handler->display->display_options['filters']['combine_data_result']['expose']['operator'] = 'combine_data_result_op';
+  $handler->display->display_options['filters']['combine_data_result']['expose']['identifier'] = 'item_data_result';
+  $handler->display->display_options['filters']['combine_data_result']['fields'] = array(
+    'data' => 'data',
+    'result' => 'result',
+  );
   $translatables['advancedqueue_admin'] = array(
     t('Master'),
     t('more'),
@@ -405,7 +416,11 @@ function advancedqueue_admin_views_default_views() {
     t('- Choose an operation -'),
     t('Item ID'),
     t('.'),
+    t('Item key'),
+    t('<div class="description">[item_key]</div>'),
     t('Title'),
+    t('Tag'),
+    t('<div class="description">[tag]</div>'),
     t('Created'),
     t('Owner'),
     t('Status'),
@@ -416,7 +431,10 @@ function advancedqueue_admin_views_default_views() {
     t('Result'),
     t('All'),
     t('%1'),
-    t('Tag'),
+    t('Item ID/key'),
+    t('Item title/tag'),
+    t('Format: CCYY-MM-DD HH:MM:SS'),
+    t('Data/result'),
   );
   $views[$view->name] = $view;
 
