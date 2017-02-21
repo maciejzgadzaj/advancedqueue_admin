@@ -51,7 +51,9 @@ function advancedqueue_admin_queue_list() {
       }
 
       $operations = array();
-      $operations[] = l(t('delete'), 'admin/structure/queues/' . $queue_name . '/delete', array('attributes' => array('title' => t('Delete all items from this queue'))));
+      if (!empty($result[ADVANCEDQUEUE_STATUS_QUEUED])) {
+        $operations[] = l(t('delete'), 'admin/structure/queues/' . $queue_name . '/delete', array('attributes' => array('title' => t('Delete all items from this queue'))));
+      }
       $row[] = implode(' - ', $operations);
 
       $rows[] = $row;
