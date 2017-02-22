@@ -11,7 +11,7 @@ function advancedqueue_admin_views_default_views() {
   $view->description = '';
   $view->tag = 'default';
   $view->base_table = 'advancedqueue';
-  $view->human_name = 'Advancedqueue Admin';
+  $view->human_name = 'AdvancedQueue Admin';
   $view->core = 7;
   $view->api_version = '3.0';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */

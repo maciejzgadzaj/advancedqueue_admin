@@ -1,5 +1,5 @@
-name = Advanced Queues Admin
-description = Provides admin UI for the Advanced Queues module.
+name = AdvancedQueue Admin
+description = Provides admin UI for the Advanced Queue module.
 core = 7.x
 package = Other
 configure = admin/structure/queues/settings

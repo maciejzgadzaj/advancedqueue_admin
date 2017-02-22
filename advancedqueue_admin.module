@@ -19,7 +19,7 @@ function advancedqueue_admin_permission() {
   return array(
     'advancedqueue_admin view queues' => array(
       'title' => t('View queues'),
-      'description' => t('Allow users to access Advanced Queues Admin pages to view queues and queue items.'),
+      'description' => t('Allow users to access AdvancedQueue Admin pages to view queues and queue items.'),
     ),
     'advancedqueue_admin manage queues' => array(
       'title' => t('Manage queues'),
@@ -37,7 +37,7 @@ function advancedqueue_admin_menu() {
 
   $items['admin/structure/queues'] = array(
     'title' => 'Queues',
-    'description' => 'View and manage Advancedqueue queues and items.',
+    'description' => 'View and manage Advanced Queue queues and items.',
     'page callback' => 'advancedqueue_admin_queue_list',
     'access arguments' => array('advancedqueue_admin view queues'),
     'type' => MENU_NORMAL_ITEM,
@@ -272,7 +272,7 @@ function advancedqueue_admin_log_message($message, $item, $type = 'status') {
 function advancedqueue_admin_form_advancedqueue_settings_form_alter(&$form, &$form_state, $form_id) {
   $form['advancedqueue_admin'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Advancedqueue Admin settings'),
+    '#title' => t('AdvancedQueue Admin settings'),
     '#collapsible' => TRUE,
   );
   $form['advancedqueue_admin']['advancedqueue_admin_show_undefined_queues'] = array(
