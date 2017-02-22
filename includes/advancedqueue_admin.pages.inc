@@ -24,11 +24,12 @@ function advancedqueue_admin_queue_list() {
       ));
     }
 
-    $group_unprocessed_item_count = 0;
+    $group_item_count = $group_unprocessed_item_count = 0;
 
     foreach ($queues as $queue_name => $queue_info) {
       $result = db_query('SELECT status, COUNT(item_id) as count FROM {advancedqueue} WHERE name = :name GROUP BY status', array(':name' => $queue_name))->fetchAllKeyed();
 
+      // Build queue name and machine name columns.
       $queue_label = !empty($queue_info['label']) ? $queue_info['label'] : $queue_name;
       $queue_label = l(t($queue_label), 'admin/structure/queues/' . $queue_name);
       if (!empty($queue_info['description'])) {
@@ -49,6 +50,7 @@ function advancedqueue_admin_queue_list() {
         $row[0]['class'] .= ' queue-in-group';
       }
 
+      // Build items count columns.
       $queue_item_count = 0;
       foreach (array_keys($advancedqueue_statuses) as $status_code) {
         $row[] = array(
@@ -56,11 +58,15 @@ function advancedqueue_admin_queue_list() {
           'class' => 'queue-item-count-' . strtolower($advancedqueue_statuses[$status_code]),
         );
         $queue_item_count += !empty($result[$status_code]) ? $result[$status_code] : 0;
+        $group_item_count += !empty($result[$status_code]) ? $result[$status_code] : 0;
       }
       $group_unprocessed_item_count += !empty($result[ADVANCEDQUEUE_STATUS_QUEUED]) ? $result[ADVANCEDQUEUE_STATUS_QUEUED] : 0;
 
+      // Build queue operations column.
       $operations = array();
-      if (!empty($result[ADVANCEDQUEUE_STATUS_QUEUED])) {
+      // Do not show 'Process' link for queues from 'Undefined' group, as we
+      // don't know what their worker function is, so we can't process them.
+      if (!empty($result[ADVANCEDQUEUE_STATUS_QUEUED]) && $group_name != ADVANCEDQUEUE_ADMIN_GROUP_UNDEFINED) {
         $operations[] = l(t('process'), 'admin/structure/queues/' . $queue_name . '/process', array('attributes' => array('title' => t('Process all unprocessed items in this queue'))));
       }
       if (!empty($queue_item_count)) {
@@ -74,11 +80,16 @@ function advancedqueue_admin_queue_list() {
       $rows[] = $row;
     }
 
-    if (!empty($group_unprocessed_item_count)) {
+    // Build group operations column.
+    if (count($queues_by_group) > 1 && !empty($group_item_count)) {
       $rows[$group_name][0]['colspan'] = count($advancedqueue_statuses) + 2;
 
       $operations = array();
-      $operations[] = l(t('process'), 'admin/structure/queues/group:' . $group_name . '/process', array('attributes' => array('title' => t('Process all unprocessed items in this group'))));
+      // Do not show 'Process' link for 'Undefined' group, as we don't know
+      // what the worker function for its queues is, so we can't process them.
+      if (!empty($group_unprocessed_item_count) && $group_name != ADVANCEDQUEUE_ADMIN_GROUP_UNDEFINED) {
+        $operations[] = l(t('process'), 'admin/structure/queues/group:' . $group_name . '/process', array('attributes' => array('title' => t('Process all unprocessed items in this group'))));
+      }
       $operations[] = l(t('delete'), 'admin/structure/queues/group:' . $group_name . '/delete', array('attributes' => array('title' => t('Delete all items from this group'))));
       $rows[$group_name][] = array(
         'data' => implode(' - ', $operations),

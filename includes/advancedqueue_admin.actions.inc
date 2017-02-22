@@ -151,6 +151,16 @@ function advancedqueue_admin_mark_item_as_processed_action($item, $context = arr
 function advancedqueue_admin_process_item_action($item, $context = array()) {
   $queues_info = advancedqueue_get_queues_info();
 
+  // Do not allow to process items from undefined queues,
+  // as we don't know what their worker function is.
+  if (!in_array($item->name, array_keys($queues_info))) {
+    drupal_set_message(t('Unable to process item %item_id from an undefined queue %queue_name (unknown worker callback).', array(
+      '%item_id' => $item->item_id,
+      '%queue_name' => $item->name,
+    )), 'error');
+    return FALSE;
+  }
+
   /** @var AdvancedQueue $queue */
   $queue = DrupalQueue::get($item->name);
 

@@ -1,5 +1,7 @@
 <?php
 
+define('ADVANCEDQUEUE_ADMIN_GROUP_UNDEFINED', 'Undefined');
+
 require_once 'includes/advancedqueue_admin.actions.inc';
 
 /**
@@ -161,6 +163,16 @@ function advancedqueue_admin_queues_by_group() {
     $group = isset($queue_info['group']) ? $queue_info['group'] : 'Ungrouped';
     $queues_by_group[$group][$queue_name] = $queue_info;
   }
+  ksort($queues_by_group);
+
+  // Add undefined queues at the end.
+  if (variable_get('advancedqueue_admin_show_undefined_queues', FALSE)) {
+    if ($result = db_query('SELECT DISTINCT name FROM {advancedqueue} WHERE name NOT IN (:names) ORDER BY name', array(':names' => array_keys($queues)))->fetchCol()) {
+      foreach ($result as $result_item) {
+        $queues_by_group[ADVANCEDQUEUE_ADMIN_GROUP_UNDEFINED][$result_item] = array('group' => ADVANCEDQUEUE_ADMIN_GROUP_UNDEFINED);
+      }
+    }
+  }
 
   return $queues_by_group;
 }
@@ -245,4 +257,23 @@ function advancedqueue_admin_log_message($message, $item, $type = 'status') {
   $variables = array('%item_id' => $item->item_id, '%queue_name' => $item->name);
   watchdog('advancedqueue_admin', $message, $variables, $type == 'status' ? WATCHDOG_INFO : WATCHDOG_ERROR);
   drupal_set_message(t($message, $variables), $type);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for advancedqueue_settings_form().
+ *
+ * @see advancedqueue_settings_form()
+ */
+function advancedqueue_admin_form_advancedqueue_settings_form_alter(&$form, &$form_state, $form_id) {
+  $form['advancedqueue_admin'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Advancedqueue Admin settings'),
+    '#collapsible' => TRUE,
+  );
+  $form['advancedqueue_admin']['advancedqueue_admin_show_undefined_queues'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show undefined queues'),
+    '#description' => t('Enabling this option will also show all these queues that are not defined by <code>hook_advanced_queue_info()</code> implementations (for example <em>Update</em> and <em>Views Bulk Operations</em> module queues) in the %undefined_group_name group.', array('%undefined_group_name' => ADVANCEDQUEUE_ADMIN_GROUP_UNDEFINED)),
+    '#default_value' => variable_get('advancedqueue_admin_show_undefined_queues', FALSE),
+  );
 }
