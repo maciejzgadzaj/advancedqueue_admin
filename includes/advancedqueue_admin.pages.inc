@@ -11,7 +11,7 @@ function advancedqueue_admin_queue_list() {
 
   $advancedqueue_statuses = _advancedqueue_status_options();
 
-  $header = array_merge(array(t('Queue')), $advancedqueue_statuses, array(''));
+  $header = array_merge(array(t('Name'), t('Machine name')), $advancedqueue_statuses, array('Operations'));
 
   $rows = array();
   foreach ($queues_by_group as $group_name => $queues) {
@@ -19,7 +19,7 @@ function advancedqueue_admin_queue_list() {
     if (count($queues_by_group) > 1) {
       $rows[$group_name] = array(array(
         'data' => t($group_name),
-        'colspan' => count($advancedqueue_statuses) + 2,
+        'colspan' => count($advancedqueue_statuses) + 3,
         'class' => 'group-name',
       ));
     }
@@ -29,30 +29,41 @@ function advancedqueue_admin_queue_list() {
     foreach ($queues as $queue_name => $queue_info) {
       $result = db_query('SELECT status, COUNT(item_id) as count FROM {advancedqueue} WHERE name = :name GROUP BY status', array(':name' => $queue_name))->fetchAllKeyed();
 
-      $queue_label = l($queue_name, 'admin/structure/queues/' . $queue_name);
+      $queue_label = !empty($queue_info['label']) ? $queue_info['label'] : $queue_name;
+      $queue_label = l(t($queue_label), 'admin/structure/queues/' . $queue_name);
       if (!empty($queue_info['description'])) {
         $queue_label .= '<div class="description">' . $queue_info['description'] . '</div>';
       }
-      $row = array(array(
-        'data' => $queue_label,
-        'class' => 'queue-name',
-      ));
+      $row = array(
+        array(
+          'data' => $queue_label,
+          'class' => 'queue-name',
+        ),
+        array(
+          'data' => $queue_name,
+          'class' => 'queue-machine-name',
+        ),
+      );
       // If we have more than one group defined, indent queue names.
       if (count($queues_by_group) > 1) {
         $row[0]['class'] .= ' queue-in-group';
       }
 
+      $queue_item_count = 0;
       foreach (array_keys($advancedqueue_statuses) as $status_code) {
         $row[] = array(
           'data' => isset($result[$status_code]) ? l($result[$status_code], 'admin/structure/queues/' . $queue_name, array('query' => array('status[]' => $status_code))) : '-',
           'class' => 'queue-item-count-' . strtolower($advancedqueue_statuses[$status_code]),
         );
+        $queue_item_count += !empty($result[$status_code]) ? $result[$status_code] : 0;
       }
       $group_unprocessed_item_count += !empty($result[ADVANCEDQUEUE_STATUS_QUEUED]) ? $result[ADVANCEDQUEUE_STATUS_QUEUED] : 0;
 
       $operations = array();
       if (!empty($result[ADVANCEDQUEUE_STATUS_QUEUED])) {
         $operations[] = l(t('process'), 'admin/structure/queues/' . $queue_name . '/process', array('attributes' => array('title' => t('Process all unprocessed items in this queue'))));
+      }
+      if (!empty($queue_item_count)) {
         $operations[] = l(t('delete'), 'admin/structure/queues/' . $queue_name . '/delete', array('attributes' => array('title' => t('Delete all items from this queue'))));
       }
       $row[] = array(
@@ -64,7 +75,7 @@ function advancedqueue_admin_queue_list() {
     }
 
     if (!empty($group_unprocessed_item_count)) {
-      $rows[$group_name][0]['colspan'] = count($advancedqueue_statuses) + 1;
+      $rows[$group_name][0]['colspan'] = count($advancedqueue_statuses) + 2;
 
       $operations = array();
       $operations[] = l(t('process'), 'admin/structure/queues/group:' . $group_name . '/process', array('attributes' => array('title' => t('Process all unprocessed items in this group'))));
