@@ -280,11 +280,8 @@ function advancedqueue_admin_queue_delete_confirm($form, &$form_state, $name) {
  */
 function advancedqueue_admin_queue_delete_confirm_submit($form, &$form_state) {
   if ($form_state['values']['confirm']) {
-    $queue_names = $form_state['values']['queue_names'];
-    foreach ($queue_names as $queue_name) {
-      $queue = DrupalQueue::get($queue_name);
-      $queue->deleteQueue();
-    }
+    module_load_include('batch.inc', 'advancedqueue_admin', 'includes/advancedqueue_admin');
+    advancedqueue_admin_batch_delete($form_state['values']['queue_names'], $form_state['values']['type'], $form_state['values']['name']);
 
     drupal_set_message(t('Deleted all items from @type %name.', array(
       '@type' => $form_state['values']['type'],
