@@ -27,7 +27,7 @@ function advancedqueue_admin_queue_list() {
       $rows[] = array(array(
         'data' => t($group_name),
         'colspan' => count($advancedqueue_statuses) + 2,
-        'class' => 'group-header',
+        'class' => 'group-name',
       ));
     }
 
@@ -40,14 +40,18 @@ function advancedqueue_admin_queue_list() {
       }
       $row = array(array(
         'data' => $queue_label,
+        'class' => 'queue-name',
       ));
       // If we have more than one group defined, indent queue names.
       if (count($queues_by_group) > 1) {
-        $row[0]['class'] = 'queue-in-group';
+        $row[0]['class'] .= ' queue-in-group';
       }
 
       foreach (array_keys($advancedqueue_statuses) as $status_code) {
-        $row[] = isset($result[$status_code]) ? l($result[$status_code], 'admin/structure/queues/' . $queue_name, array('query' => array('status[]' => $status_code))) : '-';
+        $row[] = array(
+          'data' => isset($result[$status_code]) ? l($result[$status_code], 'admin/structure/queues/' . $queue_name, array('query' => array('status[]' => $status_code))) : '-',
+          'class' => 'queue-item-count-' . strtolower($advancedqueue_statuses[$status_code]),
+        );
       }
 
       $operations = array();
@@ -55,7 +59,10 @@ function advancedqueue_admin_queue_list() {
         $operations[] = l(t('process'), 'admin/structure/queues/' . $queue_name . '/process', array('attributes' => array('title' => t('Process all unprocessed items in this queue'))));
         $operations[] = l(t('delete'), 'admin/structure/queues/' . $queue_name . '/delete', array('attributes' => array('title' => t('Delete all items from this queue'))));
       }
-      $row[] = implode(' - ', $operations);
+      $row[] = array(
+        'data' => implode(' - ', $operations),
+        'class' => 'queue-operations',
+      );
 
       $rows[] = $row;
     }
