@@ -6,15 +6,8 @@
  * @see advancedqueue_admin_menu()
  */
 function advancedqueue_admin_queue_list() {
-  $queues = advancedqueue_get_queues_info();
-  ksort($queues);
-
-  // Group queues by their 'group' property.
-  $queues_by_group = array();
-  foreach ($queues as $queue_name => $queue_info) {
-    $group = isset($queue_info['group']) ? $queue_info['group'] : 'Ungrouped';
-    $queues_by_group[$group][$queue_name] = $queue_info;
-  }
+  // Get all queues grouped by their 'group' property.
+  $queues_by_group = advancedqueue_admin_queues_by_group();
 
   $advancedqueue_statuses = _advancedqueue_status_options();
 
@@ -24,12 +17,14 @@ function advancedqueue_admin_queue_list() {
   foreach ($queues_by_group as $group_name => $queues) {
     // If we have more than one queue group defined, display group header.
     if (count($queues_by_group) > 1) {
-      $rows[] = array(array(
+      $rows[$group_name] = array(array(
         'data' => t($group_name),
         'colspan' => count($advancedqueue_statuses) + 2,
         'class' => 'group-name',
       ));
     }
+
+    $group_unprocessed_item_count = 0;
 
     foreach ($queues as $queue_name => $queue_info) {
       $result = db_query('SELECT status, COUNT(item_id) as count FROM {advancedqueue} WHERE name = :name GROUP BY status', array(':name' => $queue_name))->fetchAllKeyed();
@@ -53,6 +48,7 @@ function advancedqueue_admin_queue_list() {
           'class' => 'queue-item-count-' . strtolower($advancedqueue_statuses[$status_code]),
         );
       }
+      $group_unprocessed_item_count += !empty($result[ADVANCEDQUEUE_STATUS_QUEUED]) ? $result[ADVANCEDQUEUE_STATUS_QUEUED] : 0;
 
       $operations = array();
       if (!empty($result[ADVANCEDQUEUE_STATUS_QUEUED])) {
@@ -65,6 +61,18 @@ function advancedqueue_admin_queue_list() {
       );
 
       $rows[] = $row;
+    }
+
+    if (!empty($group_unprocessed_item_count)) {
+      $rows[$group_name][0]['colspan'] = count($advancedqueue_statuses) + 1;
+
+      $operations = array();
+      $operations[] = l(t('process'), 'admin/structure/queues/group:' . $group_name . '/process', array('attributes' => array('title' => t('Process all unprocessed items in this group'))));
+      $operations[] = l(t('delete'), 'admin/structure/queues/group:' . $group_name . '/delete', array('attributes' => array('title' => t('Delete all items from this group'))));
+      $rows[$group_name][] = array(
+        'data' => implode(' - ', $operations),
+        'class' => 'group-operations',
+      );
     }
   }
 
@@ -176,12 +184,30 @@ function advancedqueue_admin_item_devel($item_id) {
  * @see advancedqueue_admin_menu()
  * @see advancedqueue_admin_queue_process_confirm_submit()
  */
-function advancedqueue_admin_queue_process_confirm($form, &$form_state, $queue_name) {
-  $form['queue_name'] = array('#type' => 'value', '#value' => $queue_name);
+function advancedqueue_admin_queue_process_confirm($form, &$form_state, $name) {
+  if (strpos($name, 'group:') === 0) {
+    $name = str_replace('group:', '', $name);
+    $queues_by_group = advancedqueue_admin_queues_by_group();
+    if (empty($queues_by_group[$name])) {
+      drupal_set_message(t('No queues found for group %group_name.', array('%group_name' => $name)), 'error');
+      drupal_goto('admin/structure/queues');
+    }
+    $type = 'group';
+    $queue_names = array_keys($queues_by_group[$name]);
+  }
+  else {
+    $type = 'queue';
+    $queue_names = array($name);
+  }
+
+  $form['type'] = array('#type' => 'value', '#value' => $type);
+  $form['name'] = array('#type' => 'value', '#value' => $name);
+  $form['queue_names'] = array('#type' => 'value', '#value' => $queue_names);
+
   return confirm_form($form,
-    t('Process %queue_name ?', array('%queue_name' => $queue_name)),
+    t('Process @type %name ?', array('@type' => $type, '%name' => $name)),
     'admin/structure/queues',
-    t('Are you sure you want to process all unprocessed items in queue %queue_name ?', array('%queue_name' => $queue_name)),
+    t('Are you sure you want to process all unprocessed items in @type %name ?', array('@type' => $type, '%name' => $name)),
     t('Confirm'),
     t('Cancel')
   );
@@ -194,10 +220,8 @@ function advancedqueue_admin_queue_process_confirm($form, &$form_state, $queue_n
  */
 function advancedqueue_admin_queue_process_confirm_submit($form, &$form_state) {
   if ($form_state['values']['confirm']) {
-    $queue_name = $form_state['values']['queue_name'];
-
     module_load_include('batch.inc', 'advancedqueue_admin', 'includes/advancedqueue_admin');
-    advancedqueue_admin_batch_process(array($queue_name));
+    advancedqueue_admin_batch_process($form_state['values']['queue_names'], $form_state['values']['type'], $form_state['values']['name']);
   }
 
   $form_state['redirect'] = 'admin/structure/queues';
@@ -209,12 +233,30 @@ function advancedqueue_admin_queue_process_confirm_submit($form, &$form_state) {
  * @see advancedqueue_admin_menu()
  * @see advancedqueue_admin_queue_delete_confirm_submit()
  */
-function advancedqueue_admin_queue_delete_confirm($form, &$form_state, $queue_name) {
-  $form['queue_name'] = array('#type' => 'value', '#value' => $queue_name);
+function advancedqueue_admin_queue_delete_confirm($form, &$form_state, $name) {
+  if (strpos($name, 'group:') === 0) {
+    $name = str_replace('group:', '', $name);
+    $queues_by_group = advancedqueue_admin_queues_by_group();
+    if (empty($queues_by_group[$name])) {
+      drupal_set_message(t('No queues found for group %group_name.', array('%group_name' => $name)), 'error');
+      drupal_goto('admin/structure/queues');
+    }
+    $type = 'group';
+    $queue_names = array_keys($queues_by_group[$name]);
+  }
+  else {
+    $type = 'queue';
+    $queue_names = array($name);
+  }
+
+  $form['type'] = array('#type' => 'value', '#value' => $type);
+  $form['name'] = array('#type' => 'value', '#value' => $name);
+  $form['queue_names'] = array('#type' => 'value', '#value' => $queue_names);
+
   return confirm_form($form,
-    t('Delete %queue_name ?', array('%queue_name' => $queue_name)),
+    t('Delete @type %name ?', array('@type' => $type, '%name' => $name)),
     'admin/structure/queues',
-    t('Are you sure you want to delete all items (including processed) from queue %queue_name ?', array('%queue_name' => $queue_name)),
+    t('Are you sure you want to delete all items (including processed) from @type %name ?', array('@type' => $type, '%name' => $name)),
     t('Confirm'),
     t('Cancel')
   );
@@ -227,11 +269,16 @@ function advancedqueue_admin_queue_delete_confirm($form, &$form_state, $queue_na
  */
 function advancedqueue_admin_queue_delete_confirm_submit($form, &$form_state) {
   if ($form_state['values']['confirm']) {
-    $queue_name = $form_state['values']['queue_name'];
-    $queue = DrupalQueue::get($queue_name);
-    $queue->deleteQueue();
+    $queue_names = $form_state['values']['queue_names'];
+    foreach ($queue_names as $queue_name) {
+      $queue = DrupalQueue::get($queue_name);
+      $queue->deleteQueue();
+    }
 
-    drupal_set_message(t('Deleted all items from queue %queue_name.', array('%queue_name' => $queue_name)));
+    drupal_set_message(t('Deleted all items from @type %name.', array(
+      '@type' => $form_state['values']['type'],
+      '%name' => $form_state['values']['name'],
+    )));
   }
 
   $form_state['redirect'] = 'admin/structure/queues';

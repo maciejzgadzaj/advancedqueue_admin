@@ -8,7 +8,7 @@
  *
  * @see advancedqueue_admin_queue_process_confirm_submit()
  */
-function advancedqueue_admin_batch_process($queue_names) {
+function advancedqueue_admin_batch_process($queue_names, $type, $name) {
   $item_ids = db_query('SELECT item_id FROM {advancedqueue} q WHERE status = -1 AND expire = 0 AND name IN (:names) AND created <= :created ORDER BY created ASC', array(
     ':created' => time(),
     ':names' => $queue_names,
@@ -16,7 +16,7 @@ function advancedqueue_admin_batch_process($queue_names) {
 
   if (!empty($item_ids)) {
     $batch = array(
-      'title' => t('Processing items from %queue_names.', array('%queue_names' => implode(', ', $queue_names))),
+      'title' => t('Processing items from @type %name.', array('@type' => $type, '%name' => $name)),
       'operations' => array(),
       'progress_message' => t('Processed @current out of @total'),
       'finished' => 'advancedqueue_admin_batch_process_finished',

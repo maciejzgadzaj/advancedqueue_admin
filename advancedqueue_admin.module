@@ -146,6 +146,26 @@ function advancedqueue_admin_views_api() {
 }
 
 /**
+ * Returns all advancedqueue queues grouped by their 'group' property.
+ *
+ * @return array
+ *   An array of all advancedqueue queues grouped by their 'group' property.
+ */
+function advancedqueue_admin_queues_by_group() {
+  $queues = advancedqueue_get_queues_info();
+  ksort($queues);
+
+  // Group queues by their 'group' property.
+  $queues_by_group = array();
+  foreach ($queues as $queue_name => $queue_info) {
+    $group = isset($queue_info['group']) ? $queue_info['group'] : 'Ungrouped';
+    $queues_by_group[$group][$queue_name] = $queue_info;
+  }
+
+  return $queues_by_group;
+}
+
+/**
  * Loads the queue item.
  *
  * @param int $item_id

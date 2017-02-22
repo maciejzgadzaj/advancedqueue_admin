@@ -1,7 +1,9 @@
-#advancedqueue_admin_queues .group-name {
+#advancedqueue_admin_queues .group-name,
+#advancedqueue_admin_queues .group-operations {
     font-weight: bold;
 }
-#advancedqueue_admin_queues .queue-in-group {
+#advancedqueue_admin_queues .queue-in-group,
+#advancedqueue_admin_queues .queue-operations {
     padding-left: 2em;
 }
 
