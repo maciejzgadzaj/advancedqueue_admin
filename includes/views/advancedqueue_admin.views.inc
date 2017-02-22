@@ -50,3 +50,18 @@ function advancedqueue_admin_views_plugins() {
 function advancedqueue_admin_method_group_concat_distinct($group_type, $field) {
   return "GROUP_CONCAT(DISTINCT NULLIF($field, '') SEPARATOR ', ')";
 }
+
+/**
+ * Implements hook_views_post_build().
+ *
+ * Hides the whole VBO form from the queue items view
+ * if current user does not have access to manage queues.
+ *
+ * @see views_bulk_operations_views_post_build()
+ */
+function advancedqueue_admin_views_post_build(&$view) {
+  if ($view->name == 'advancedqueue_admin' && !user_access('advancedqueue_admin manage queues')) {
+    $vbo = _views_bulk_operations_get_field($view);
+    $vbo->options['exclude'] = TRUE;
+  }
+}

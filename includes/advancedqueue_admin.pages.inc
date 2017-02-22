@@ -64,13 +64,15 @@ function advancedqueue_admin_queue_list() {
 
       // Build queue operations column.
       $operations = array();
-      // Do not show 'Process' link for queues from 'Undefined' group, as we
-      // don't know what their worker function is, so we can't process them.
-      if (!empty($result[ADVANCEDQUEUE_STATUS_QUEUED]) && $group_name != ADVANCEDQUEUE_ADMIN_GROUP_UNDEFINED) {
-        $operations[] = l(t('process'), 'admin/structure/queues/' . $queue_name . '/process', array('attributes' => array('title' => t('Process all unprocessed items in this queue'))));
-      }
-      if (!empty($queue_item_count)) {
-        $operations[] = l(t('delete'), 'admin/structure/queues/' . $queue_name . '/delete', array('attributes' => array('title' => t('Delete all items from this queue'))));
+      if (user_access('advancedqueue_admin manage queues')) {
+        // Do not show 'Process' link for queues from 'Undefined' group, as we
+        // don't know what their worker function is, so we can't process them.
+        if (!empty($result[ADVANCEDQUEUE_STATUS_QUEUED]) && $group_name != ADVANCEDQUEUE_ADMIN_GROUP_UNDEFINED) {
+          $operations[] = l(t('process'), 'admin/structure/queues/' . $queue_name . '/process', array('attributes' => array('title' => t('Process all unprocessed items in this queue'))));
+        }
+        if (!empty($queue_item_count)) {
+          $operations[] = l(t('delete'), 'admin/structure/queues/' . $queue_name . '/delete', array('attributes' => array('title' => t('Delete all items from this queue'))));
+        }
       }
       $row[] = array(
         'data' => implode(' - ', $operations),
@@ -85,12 +87,14 @@ function advancedqueue_admin_queue_list() {
       $rows[$group_name][0]['colspan'] = count($advancedqueue_statuses) + 2;
 
       $operations = array();
-      // Do not show 'Process' link for 'Undefined' group, as we don't know
-      // what the worker function for its queues is, so we can't process them.
-      if (!empty($group_unprocessed_item_count) && $group_name != ADVANCEDQUEUE_ADMIN_GROUP_UNDEFINED) {
-        $operations[] = l(t('process'), 'admin/structure/queues/group:' . $group_name . '/process', array('attributes' => array('title' => t('Process all unprocessed items in this group'))));
+      if (user_access('advancedqueue_admin manage queues')) {
+        // Do not show 'Process' link for 'Undefined' group, as we don't know
+        // what the worker function for its queues is, so we can't process them.
+        if (!empty($group_unprocessed_item_count) && $group_name != ADVANCEDQUEUE_ADMIN_GROUP_UNDEFINED) {
+          $operations[] = l(t('process'), 'admin/structure/queues/group:' . $group_name . '/process', array('attributes' => array('title' => t('Process all unprocessed items in this group'))));
+        }
+        $operations[] = l(t('delete'), 'admin/structure/queues/group:' . $group_name . '/delete', array('attributes' => array('title' => t('Delete all items from this group'))));
       }
-      $operations[] = l(t('delete'), 'admin/structure/queues/group:' . $group_name . '/delete', array('attributes' => array('title' => t('Delete all items from this group'))));
       $rows[$group_name][] = array(
         'data' => implode(' - ', $operations),
         'class' => 'group-operations',

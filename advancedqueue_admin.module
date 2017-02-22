@@ -17,9 +17,13 @@ function advancedqueue_admin_entity_info_alter(&$entity_info) {
  */
 function advancedqueue_admin_permission() {
   return array(
-    'access advancedqueue_admin' => array(
-      'title' => t('Access Advanced Queues Admin'),
-      'description' => t('Access Advanced Queues administration features.'),
+    'advancedqueue_admin view queues' => array(
+      'title' => t('View queues'),
+      'description' => t('Allow users to access Advanced Queues Admin pages to view queues and queue items.'),
+    ),
+    'advancedqueue_admin manage queues' => array(
+      'title' => t('Manage queues'),
+      'description' => t('Allow users to perform actions on queues and queue items.'),
       'restrict access' => TRUE,
     ),
   );
@@ -33,8 +37,9 @@ function advancedqueue_admin_menu() {
 
   $items['admin/structure/queues'] = array(
     'title' => 'Queues',
+    'description' => 'View and manage Advancedqueue queues and items.',
     'page callback' => 'advancedqueue_admin_queue_list',
-    'access arguments' => array('access advancedqueue_admin'),
+    'access arguments' => array('advancedqueue_admin view queues'),
     'type' => MENU_NORMAL_ITEM,
     'file' => 'includes/advancedqueue_admin.pages.inc',
   );
@@ -62,7 +67,7 @@ function advancedqueue_admin_menu() {
     'title arguments' => array(3),
     'page callback' => 'advancedqueue_admin_queue_items',
     'page arguments' => array(3),
-    'access arguments' => array('access advancedqueue_admin'),
+    'access arguments' => array('advancedqueue_admin view queues'),
     'type' => MENU_NORMAL_ITEM,
     'file' => 'includes/advancedqueue_admin.pages.inc',
   );
@@ -90,7 +95,7 @@ function advancedqueue_admin_menu() {
     'title' => 'Process',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('advancedqueue_admin_queue_process_confirm', 3),
-    'access arguments' => array('access advancedqueue_admin'),
+    'access arguments' => array('advancedqueue_admin manage queues'),
     'type' => MENU_NORMAL_ITEM,
     'file' => 'includes/advancedqueue_admin.pages.inc',
   );
@@ -99,7 +104,7 @@ function advancedqueue_admin_menu() {
     'title' => 'Delete',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('advancedqueue_admin_queue_delete_confirm', 3),
-    'access arguments' => array('access advancedqueue_admin'),
+    'access arguments' => array('advancedqueue_admin manage queues'),
     'type' => MENU_NORMAL_ITEM,
     'file' => 'includes/advancedqueue_admin.pages.inc',
   );
@@ -109,7 +114,7 @@ function advancedqueue_admin_menu() {
     'title arguments' => array(4),
     'page callback' => 'advancedqueue_admin_item_view',
     'page arguments' => array(4),
-    'access arguments' => array('access advancedqueue_admin'),
+    'access arguments' => array('advancedqueue_admin view queues'),
     'type' => MENU_NORMAL_ITEM,
     'file' => 'includes/advancedqueue_admin.pages.inc',
   );

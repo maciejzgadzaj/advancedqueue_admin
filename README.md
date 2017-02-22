@@ -29,6 +29,10 @@ _Advanced Queue Admin_ module is an extension to [_Advanced Queue_](https://www.
 
   ![Queue items](http://i.imgur.com/981RVlt.png "Queue items")
 
+* Separate user permissions for viewing and managing queues and queue items
+
+  ![User permissions](http://i.imgur.com/yfuaGTd.png "User permissions")
+
 * [_Devel_](https://www.drupal.org/project/devel) module support for displaying queue and queue item details
 
   ![Queue devel](http://i.imgur.com/snDU206.png "Queue devel")
