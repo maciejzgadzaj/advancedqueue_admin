@@ -1,0 +1,8 @@
+<?php
+
+/**
+ * Implements hook_uninstall().
+ */
+function advancedqueue_admin_uninstall() {
+  variable_del('advancedqueue_admin_show_undefined_queues');
+}
