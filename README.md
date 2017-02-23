@@ -14,9 +14,9 @@ _AdvancedQueue Admin_ module is an extension to [_Advanced Queue_](https://www.d
     - process all unprocessed items in the queue/group
     - delete all items from the queue/group
 
-  ![Queues](http://i.imgur.com/3ZIdX9J.png "Queues")
+  ![Queues](http://i.imgur.com/DFlsOrU.png "Queues")
 
-* Pages listing all/selected items for each defined queue
+* Pages listing all/selected items for each queue, and for all queues together
   - filters for all queue item properties
   - [_Views Bulk Operations_](https://www.drupal.org/project/views_bulk_operations) support for operations on queue items:
     - process item

@@ -52,6 +52,20 @@ function advancedqueue_admin_method_group_concat_distinct($group_type, $field) {
 }
 
 /**
+ * Implements hook_views_pre_build().
+ *
+ * Hides 'Queue name' column and filter on Queue items pages
+ * when the provided queue name argument is different from 'all'.
+ */
+function advancedqueue_admin_views_pre_build(&$view) {
+  if ($view->name == 'advancedqueue_admin' && (empty($view->args[0]) || $view->args[0] != 'all')) {
+    unset($view->field['queue_name']);
+    unset($view->field['queue_machine_name']);
+    unset($view->filter['combine_name_machine_name']);
+  }
+}
+
+/**
  * Implements hook_views_post_build().
  *
  * Hides the whole VBO form from the queue items view

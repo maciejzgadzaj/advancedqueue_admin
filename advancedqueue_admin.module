@@ -50,6 +50,17 @@ function advancedqueue_admin_menu() {
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
 
+  $items['admin/structure/queues/all'] = array(
+    'title' => 'Items',
+    'page callback' => 'advancedqueue_admin_queue_items',
+    'page arguments' => array(3),
+    'access arguments' => array('advancedqueue_admin view queues'),
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    'file' => 'includes/advancedqueue_admin.pages.inc',
+    'weight' => 1,
+  );
+
   $items['admin/structure/queues/settings'] = array(
     'title' => 'Settings',
     'description' => 'Configure settings for the Advanced Queue module.',
@@ -60,6 +71,7 @@ function advancedqueue_admin_menu() {
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
     'file' => 'advancedqueue.admin.inc',
     'file path' => drupal_get_path('module', 'advancedqueue'),
+    'weight' => 10,
   );
 
   $items['admin/structure/queues/%'] = array(
@@ -226,6 +238,14 @@ function advancedqueue_admin_form_views_exposed_form_alter(&$form, &$form_state)
 
     $form['item_data_result']['#prefix'] = '<div>';
     $form['items_per_page']['#suffix'] = '</div>';
+
+    // On Queue items page displaying items for all queues, we also have an
+    // additional 'Queue name' filter shows, which should be put in the same
+    // filter column as 'Item ID/key' and 'Item title/tag'.
+    if (!empty($form_state['view']->args[0]) && $form_state['view']->args[0] == 'all') {
+      $form['name_machine_name']['#prefix'] = '<div class="filter-group">';
+      $form['item_title_tag']['#suffix'] .= '</div>';
+    }
   }
 }
 

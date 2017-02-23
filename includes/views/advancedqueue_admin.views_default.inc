@@ -39,6 +39,8 @@ function advancedqueue_admin_views_default_views() {
   $handler->display->display_options['style_plugin'] = 'table';
   $handler->display->display_options['style_options']['columns'] = array(
     'views_bulk_operations' => 'views_bulk_operations',
+    'queue_name' => 'queue_name',
+    'queue_machine_name' => 'queue_machine_name',
     'item_id' => 'item_id',
     'item_key' => 'item_id',
     'title' => 'title',
@@ -54,6 +56,20 @@ function advancedqueue_admin_views_default_views() {
   $handler->display->display_options['style_options']['default'] = 'item_id';
   $handler->display->display_options['style_options']['info'] = array(
     'views_bulk_operations' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'queue_name' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'queue_machine_name' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
       'align' => '',
       'separator' => '',
       'empty_column' => 0,
@@ -211,6 +227,17 @@ function advancedqueue_admin_views_default_views() {
       'label' => '',
     ),
   );
+  /* Field: Queue: Queue name */
+  $handler->display->display_options['fields']['queue_name']['id'] = 'queue_name';
+  $handler->display->display_options['fields']['queue_name']['table'] = 'advancedqueue';
+  $handler->display->display_options['fields']['queue_name']['field'] = 'name';
+  /* Field: Queue: Queue name */
+  $handler->display->display_options['fields']['queue_machine_name']['id'] = 'queue_machine_name';
+  $handler->display->display_options['fields']['queue_machine_name']['table'] = 'advancedqueue';
+  $handler->display->display_options['fields']['queue_machine_name']['field'] = 'name';
+  $handler->display->display_options['fields']['queue_machine_name']['label'] = 'Queue machine name';
+  $handler->display->display_options['fields']['queue_machine_name']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['queue_machine_name']['queue_name_source'] = 'machine_name';
   /* Field: Queue: Item ID */
   $handler->display->display_options['fields']['item_id']['id'] = 'item_id';
   $handler->display->display_options['fields']['item_id']['table'] = 'advancedqueue';
@@ -293,6 +320,8 @@ function advancedqueue_admin_views_default_views() {
   $handler->display->display_options['arguments']['name']['table'] = 'advancedqueue';
   $handler->display->display_options['arguments']['name']['field'] = 'name';
   $handler->display->display_options['arguments']['name']['default_action'] = 'not found';
+  $handler->display->display_options['arguments']['name']['exception']['title_enable'] = TRUE;
+  $handler->display->display_options['arguments']['name']['exception']['title'] = 'All items';
   $handler->display->display_options['arguments']['name']['title_enable'] = TRUE;
   $handler->display->display_options['arguments']['name']['title'] = '%1';
   $handler->display->display_options['arguments']['name']['breadcrumb_enable'] = TRUE;
@@ -302,6 +331,21 @@ function advancedqueue_admin_views_default_views() {
   $handler->display->display_options['arguments']['name']['summary']['format'] = 'default_summary';
   $handler->display->display_options['arguments']['name']['summary_options']['items_per_page'] = '25';
   $handler->display->display_options['arguments']['name']['limit'] = '0';
+  /* Filter criterion: Global: Combine fields filter */
+  $handler->display->display_options['filters']['combine_name_machine_name']['id'] = 'combine_name_machine_name';
+  $handler->display->display_options['filters']['combine_name_machine_name']['table'] = 'views';
+  $handler->display->display_options['filters']['combine_name_machine_name']['field'] = 'combine';
+  $handler->display->display_options['filters']['combine_name_machine_name']['operator'] = 'contains';
+  $handler->display->display_options['filters']['combine_name_machine_name']['group'] = 1;
+  $handler->display->display_options['filters']['combine_name_machine_name']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['combine_name_machine_name']['expose']['operator_id'] = 'combine_name_machine_name_op';
+  $handler->display->display_options['filters']['combine_name_machine_name']['expose']['label'] = 'Queue name';
+  $handler->display->display_options['filters']['combine_name_machine_name']['expose']['operator'] = 'combine_name_machine_name_op';
+  $handler->display->display_options['filters']['combine_name_machine_name']['expose']['identifier'] = 'name_machine_name';
+  $handler->display->display_options['filters']['combine_name_machine_name']['fields'] = array(
+    'queue_name' => 'queue_name',
+    'queue_machine_name' => 'queue_machine_name',
+  );
   /* Filter criterion: Global: Combine fields filter */
   $handler->display->display_options['filters']['combine_item_id_key']['id'] = 'combine_item_id_key';
   $handler->display->display_options['filters']['combine_item_id_key']['table'] = 'views';
@@ -386,6 +430,7 @@ function advancedqueue_admin_views_default_views() {
   $handler->display->display_options['filters']['combine_data_result']['table'] = 'views';
   $handler->display->display_options['filters']['combine_data_result']['field'] = 'combine';
   $handler->display->display_options['filters']['combine_data_result']['operator'] = 'contains';
+  $handler->display->display_options['filters']['combine_data_result']['group'] = 1;
   $handler->display->display_options['filters']['combine_data_result']['exposed'] = TRUE;
   $handler->display->display_options['filters']['combine_data_result']['expose']['operator_id'] = 'combine_data_result_op';
   $handler->display->display_options['filters']['combine_data_result']['expose']['label'] = 'Data/result';
@@ -414,6 +459,8 @@ function advancedqueue_admin_views_default_views() {
     t('Item Owner'),
     t('Queue'),
     t('- Choose an operation -'),
+    t('Queue name'),
+    t('Queue machine name'),
     t('Item ID'),
     t('.'),
     t('Item key'),
@@ -429,7 +476,7 @@ function advancedqueue_admin_views_default_views() {
     t('Processed'),
     t('Attempts'),
     t('Result'),
-    t('All'),
+    t('All items'),
     t('%1'),
     t('Item ID/key'),
     t('Item title/tag'),
