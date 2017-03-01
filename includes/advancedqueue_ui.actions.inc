@@ -3,10 +3,10 @@
 /**
  * Implements hook_action_info().
  */
-function advancedqueue_admin_action_info() {
+function advancedqueue_ui_action_info() {
   $actions = array();
 
-  $actions['advancedqueue_admin_process_item_action'] = array(
+  $actions['advancedqueue_ui_process_item_action'] = array(
     'type' => 'advancedqueue_item',
     'label' => t('Process item'),
     'configurable' => FALSE,
@@ -14,7 +14,7 @@ function advancedqueue_admin_action_info() {
     'triggers' => array('any'),
   );
 
-  $actions['advancedqueue_admin_mark_item_as_processed_action'] = array(
+  $actions['advancedqueue_ui_mark_item_as_processed_action'] = array(
     'type' => 'advancedqueue_item',
     'label' => t('Mark item as processed'),
     'configurable' => TRUE,
@@ -22,7 +22,7 @@ function advancedqueue_admin_action_info() {
     'triggers' => array('any'),
   );
 
-  $actions['advancedqueue_admin_release_item_action'] = array(
+  $actions['advancedqueue_ui_release_item_action'] = array(
     'type' => 'advancedqueue_item',
     'label' => t('Release item'),
     'configurable' => FALSE,
@@ -30,7 +30,7 @@ function advancedqueue_admin_action_info() {
     'triggers' => array('any'),
   );
 
-  $actions['advancedqueue_admin_requeue_item_action'] = array(
+  $actions['advancedqueue_ui_requeue_item_action'] = array(
     'type' => 'advancedqueue_item',
     'label' => t('Requeue item'),
     'configurable' => FALSE,
@@ -38,7 +38,7 @@ function advancedqueue_admin_action_info() {
     'triggers' => array('any'),
   );
 
-  $actions['advancedqueue_admin_reset_attempt_counter_action'] = array(
+  $actions['advancedqueue_ui_reset_attempt_counter_action'] = array(
     'type' => 'advancedqueue_item',
     'label' => t('Reset attempt counter'),
     'configurable' => FALSE,
@@ -46,7 +46,7 @@ function advancedqueue_admin_action_info() {
     'triggers' => array('any'),
   );
 
-  $actions['advancedqueue_admin_delete_item_action'] = array(
+  $actions['advancedqueue_ui_delete_item_action'] = array(
     'type' => 'advancedqueue_item',
     'label' => t('Delete item'),
     'configurable' => FALSE,
@@ -65,27 +65,27 @@ function advancedqueue_admin_action_info() {
  * @param array $context
  *   Additional operation information.
  *
- * @see advancedqueue_admin_action_info()
+ * @see advancedqueue_ui_action_info()
  *
  * @ingroup actions
  */
-function advancedqueue_admin_delete_item_action($item, $context = array()) {
+function advancedqueue_ui_delete_item_action($item, $context = array()) {
   db_delete('advancedqueue')
     ->condition('name', $item->name)
     ->condition('item_id', $item->item_id)
     ->execute();
 
-  advancedqueue_admin_log_message('Deleted item %item_id from queue %queue_name.', $item);
+  advancedqueue_ui_log_message('Deleted item %item_id from queue %queue_name.', $item);
 }
 
 /**
  * Action settings form callback: mark queue item as processed.
  *
- * @see advancedqueue_admin_action_info()
- * @see advancedqueue_admin_mark_item_as_processed_action_submit()
- * @see advancedqueue_admin_mark_item_as_processed_action()
+ * @see advancedqueue_ui_action_info()
+ * @see advancedqueue_ui_mark_item_as_processed_action_submit()
+ * @see advancedqueue_ui_mark_item_as_processed_action()
  */
-function advancedqueue_admin_mark_item_as_processed_action_form($settings, &$form_state) {
+function advancedqueue_ui_mark_item_as_processed_action_form($settings, &$form_state) {
   $form = array();
 
   $form['status'] = array(
@@ -102,11 +102,11 @@ function advancedqueue_admin_mark_item_as_processed_action_form($settings, &$for
 /**
  * Action settings form submit callback: mark queue item as processed.
  *
- * @see advancedqueue_admin_action_info()
- * @see advancedqueue_admin_mark_item_as_processed_action_form()
- * @see advancedqueue_admin_mark_item_as_processed_action()
+ * @see advancedqueue_ui_action_info()
+ * @see advancedqueue_ui_mark_item_as_processed_action_form()
+ * @see advancedqueue_ui_mark_item_as_processed_action()
  */
-function advancedqueue_admin_mark_item_as_processed_action_submit($form, &$form_state) {
+function advancedqueue_ui_mark_item_as_processed_action_submit($form, &$form_state) {
   return array(
     'status' => $form_state['values']['status'],
   );
@@ -120,11 +120,11 @@ function advancedqueue_admin_mark_item_as_processed_action_submit($form, &$form_
  * @param array $context
  *   Additional operation information.
  *
- * @see advancedqueue_admin_action_info()
+ * @see advancedqueue_ui_action_info()
  *
  * @ingroup actions
  */
-function advancedqueue_admin_mark_item_as_processed_action($item, $context = array()) {
+function advancedqueue_ui_mark_item_as_processed_action($item, $context = array()) {
   if ($context['status'] != '-') {
     $item->status = $context['status'];
   }
@@ -133,7 +133,7 @@ function advancedqueue_admin_mark_item_as_processed_action($item, $context = arr
   $queue = DrupalQueue::get($item->name);
   $queue->deleteItem($item);
 
-  advancedqueue_admin_log_message('Marked item %item_id as processed in queue %queue_name.', $item);
+  advancedqueue_ui_log_message('Marked item %item_id as processed in queue %queue_name.', $item);
 }
 
 /**
@@ -144,11 +144,11 @@ function advancedqueue_admin_mark_item_as_processed_action($item, $context = arr
  * @param array $context
  *   Additional operation information.
  *
- * @see advancedqueue_admin_action_info()
+ * @see advancedqueue_ui_action_info()
  *
  * @ingroup actions
  */
-function advancedqueue_admin_process_item_action($item, $context = array()) {
+function advancedqueue_ui_process_item_action($item, $context = array()) {
   $queues_info = advancedqueue_get_queues_info();
 
   // Do not allow to process items from undefined queues,
@@ -180,7 +180,7 @@ function advancedqueue_admin_process_item_action($item, $context = array()) {
   // Process the item.
   advancedqueue_process_item($queue, $item->name, $queues_info[$item->name], $item);
 
-  advancedqueue_admin_log_message('Processed item %item_id from queue %queue_name.', $item);
+  advancedqueue_ui_log_message('Processed item %item_id from queue %queue_name.', $item);
 }
 
 /**
@@ -191,16 +191,16 @@ function advancedqueue_admin_process_item_action($item, $context = array()) {
  * @param array $context
  *   Additional operation information.
  *
- * @see advancedqueue_admin_action_info()
+ * @see advancedqueue_ui_action_info()
  *
  * @ingroup actions
  */
-function advancedqueue_admin_release_item_action($item, $context = array()) {
+function advancedqueue_ui_release_item_action($item, $context = array()) {
   /** @var AdvancedQueue $queue */
   $queue = DrupalQueue::get($item->name);
   $queue->releaseItem($item);
 
-  advancedqueue_admin_log_message('Released item %item_id in queue %queue_name.', $item);
+  advancedqueue_ui_log_message('Released item %item_id in queue %queue_name.', $item);
 }
 
 /**
@@ -211,16 +211,16 @@ function advancedqueue_admin_release_item_action($item, $context = array()) {
  * @param array $context
  *   Additional operation information.
  *
- * @see advancedqueue_admin_action_info()
+ * @see advancedqueue_ui_action_info()
  *
  * @ingroup actions
  */
-function advancedqueue_admin_requeue_item_action($item, $context = array()) {
+function advancedqueue_ui_requeue_item_action($item, $context = array()) {
   /** @var AdvancedQueue $queue */
   $queue = DrupalQueue::get($item->name);
   $queue->requeueItem($item);
 
-  advancedqueue_admin_log_message('Requeued item %item_id in queue %queue_name.', $item);
+  advancedqueue_ui_log_message('Requeued item %item_id in queue %queue_name.', $item);
 }
 
 /**
@@ -231,11 +231,11 @@ function advancedqueue_admin_requeue_item_action($item, $context = array()) {
  * @param array $context
  *   Additional operation information.
  *
- * @see advancedqueue_admin_action_info()
+ * @see advancedqueue_ui_action_info()
  *
  * @ingroup actions
  */
-function advancedqueue_admin_reset_attempt_counter_action($item, $context = array()) {
+function advancedqueue_ui_reset_attempt_counter_action($item, $context = array()) {
   if (isset($item->data['advancedqueue_attempt'])) {
     unset($item->data['advancedqueue_attempt']);
 
@@ -246,6 +246,6 @@ function advancedqueue_admin_reset_attempt_counter_action($item, $context = arra
       ->condition('item_id', $item->item_id)
       ->execute();
 
-    advancedqueue_admin_log_message('Reset attempt counter for item %item_id in queue %queue_name.', $item);
+    advancedqueue_ui_log_message('Reset attempt counter for item %item_id in queue %queue_name.', $item);
   }
 }

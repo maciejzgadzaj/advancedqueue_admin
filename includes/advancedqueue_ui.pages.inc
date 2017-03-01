@@ -3,11 +3,11 @@
 /**
  * Menu callback: queue listing page.
  *
- * @see advancedqueue_admin_menu()
+ * @see advancedqueue_ui_menu()
  */
-function advancedqueue_admin_queue_list() {
+function advancedqueue_ui_queue_list() {
   // Get all queues grouped by their 'group' property.
-  $queues_by_group = advancedqueue_admin_queues_by_group();
+  $queues_by_group = advancedqueue_ui_queues_by_group();
 
   $advancedqueue_statuses = _advancedqueue_status_options();
 
@@ -64,10 +64,10 @@ function advancedqueue_admin_queue_list() {
 
       // Build queue operations column.
       $operations = array();
-      if (user_access('advancedqueue_admin manage queues')) {
+      if (user_access('advancedqueue_ui manage queues')) {
         // Do not show 'Process' link for queues from 'Undefined' group, as we
         // don't know what their worker function is, so we can't process them.
-        if (!empty($result[ADVANCEDQUEUE_STATUS_QUEUED]) && $group_name != ADVANCEDQUEUE_ADMIN_GROUP_UNDEFINED) {
+        if (!empty($result[ADVANCEDQUEUE_STATUS_QUEUED]) && $group_name != ADVANCEDQUEUE_UI_GROUP_UNDEFINED) {
           $operations[] = l(t('process'), 'admin/structure/queues/' . $queue_name . '/process', array('attributes' => array('title' => t('Process all unprocessed items in this queue'))));
         }
         if (!empty($queue_item_count)) {
@@ -87,10 +87,10 @@ function advancedqueue_admin_queue_list() {
       $rows[$group_name][0]['colspan'] = count($advancedqueue_statuses) + 2;
 
       $operations = array();
-      if (user_access('advancedqueue_admin manage queues')) {
+      if (user_access('advancedqueue_ui manage queues')) {
         // Do not show 'Process' link for 'Undefined' group, as we don't know
         // what the worker function for its queues is, so we can't process them.
-        if (!empty($group_unprocessed_item_count) && $group_name != ADVANCEDQUEUE_ADMIN_GROUP_UNDEFINED) {
+        if (!empty($group_unprocessed_item_count) && $group_name != ADVANCEDQUEUE_UI_GROUP_UNDEFINED) {
           $operations[] = l(t('process'), 'admin/structure/queues/group:' . $group_name . '/process', array('attributes' => array('title' => t('Process all unprocessed items in this group'))));
         }
         $operations[] = l(t('delete'), 'admin/structure/queues/group:' . $group_name . '/delete', array('attributes' => array('title' => t('Delete all items from this group'))));
@@ -102,12 +102,12 @@ function advancedqueue_admin_queue_list() {
     }
   }
 
-  drupal_add_css(drupal_get_path('module', 'advancedqueue_admin') . '/advancedqueue_admin.css');
+  drupal_add_css(drupal_get_path('module', 'advancedqueue_ui') . '/advancedqueue_ui.css');
 
   return theme('table', array(
     'header' => $header,
     'rows' => $rows,
-    'attributes' => array('id' => 'advancedqueue_admin_queues'),
+    'attributes' => array('id' => 'advancedqueue_ui_queues'),
   ));
 }
 
@@ -115,16 +115,16 @@ function advancedqueue_admin_queue_list() {
  * Menu callback: queue item listing page.
  *
  * We embed the view this way instead of just adding a page display to it
- * to be able to use different page callback (advancedqueue_admin_queue_list())
+ * to be able to use different page callback (advancedqueue_ui_queue_list())
  * for the "base" path. (/admin/structure/queues is the page listing all queues,
  * and /admin/structure/queues/% is the views page listing all queue items).
  *
- * @see advancedqueue_admin_menu()
- * @see advancedqueue_admin_queue_items_title()
+ * @see advancedqueue_ui_menu()
+ * @see advancedqueue_ui_queue_items_title()
  */
-function advancedqueue_admin_queue_items($queue_name) {
+function advancedqueue_ui_queue_items($queue_name) {
   // Load the specified View.
-  $view = views_get_view('advancedqueue_admin');
+  $view = views_get_view('advancedqueue_ui');
   $view->set_display('default');
 
   // Set the specific arguments passed in.
@@ -134,7 +134,7 @@ function advancedqueue_admin_queue_items($queue_name) {
   $view->pre_execute();
   $view->execute();
 
-  drupal_add_css(drupal_get_path('module', 'advancedqueue_admin') . '/advancedqueue_admin.css');
+  drupal_add_css(drupal_get_path('module', 'advancedqueue_ui') . '/advancedqueue_ui.css');
 
   // Return the rendered View.
   return $view->render();
@@ -143,10 +143,10 @@ function advancedqueue_admin_queue_items($queue_name) {
 /**
  * Menu title callback: provides title for queue item listing page.
  *
- * @see advancedqueue_admin_menu()
- * @see advancedqueue_admin_queue_items()
+ * @see advancedqueue_ui_menu()
+ * @see advancedqueue_ui_queue_items()
  */
-function advancedqueue_admin_queue_items_title($queue_name) {
+function advancedqueue_ui_queue_items_title($queue_name) {
   $queues = advancedqueue_get_queues_info();
   return !empty($queues[$queue_name]['label']) ? t('@queue_label (@queue_name)', array(
     '@queue_label' => $queues[$queue_name]['label'],
@@ -157,9 +157,9 @@ function advancedqueue_admin_queue_items_title($queue_name) {
 /**
  * Menu callback: queue devel page.
  *
- * @see advancedqueue_admin_menu()
+ * @see advancedqueue_ui_menu()
  */
-function advancedqueue_admin_queue_devel($queue_name) {
+function advancedqueue_ui_queue_devel($queue_name) {
   $queues_info = advancedqueue_get_queues_info();
   $queue_info = $queues_info[$queue_name];
 
@@ -171,22 +171,22 @@ function advancedqueue_admin_queue_devel($queue_name) {
 /**
  * Menu callback: queue item view page.
  *
- * @see advancedqueue_admin_menu()
- * @see advancedqueue_admin_item_view_title()
+ * @see advancedqueue_ui_menu()
+ * @see advancedqueue_ui_item_view_title()
  */
-function advancedqueue_admin_item_view($item_id) {
-  $item = advancedqueue_admin_item_load($item_id);
+function advancedqueue_ui_item_view($item_id) {
+  $item = advancedqueue_ui_item_load($item_id);
   return entity_view('advancedqueue_item', array($item_id => $item), 'administrator', NULL, TRUE);
 }
 
 /**
  * Menu title callback: provides title for queue item view page.
  *
- * @see advancedqueue_admin_menu()
- * @see advancedqueue_admin_item_view()
+ * @see advancedqueue_ui_menu()
+ * @see advancedqueue_ui_item_view()
  */
-function advancedqueue_admin_item_view_title($item_id) {
-  if ($item = advancedqueue_admin_item_load($item_id)) {
+function advancedqueue_ui_item_view_title($item_id) {
+  if ($item = advancedqueue_ui_item_load($item_id)) {
     return $item->title;
   }
 }
@@ -195,10 +195,10 @@ function advancedqueue_admin_item_view_title($item_id) {
 /**
  * Menu callback: queue item devel page.
  *
- * @see advancedqueue_admin_menu()
+ * @see advancedqueue_ui_menu()
  */
-function advancedqueue_admin_item_devel($item_id) {
-  $item = advancedqueue_admin_item_load($item_id);
+function advancedqueue_ui_item_devel($item_id) {
+  $item = advancedqueue_ui_item_load($item_id);
 
   module_load_include('pages.inc', 'devel');
   return devel_load_object('advancedqueue_item', $item);
@@ -207,13 +207,13 @@ function advancedqueue_admin_item_devel($item_id) {
 /**
  * Form constructor for the queue process confirmation form.
  *
- * @see advancedqueue_admin_menu()
- * @see advancedqueue_admin_queue_process_confirm_submit()
+ * @see advancedqueue_ui_menu()
+ * @see advancedqueue_ui_queue_process_confirm_submit()
  */
-function advancedqueue_admin_queue_process_confirm($form, &$form_state, $name) {
+function advancedqueue_ui_queue_process_confirm($form, &$form_state, $name) {
   if (strpos($name, 'group:') === 0) {
     $name = str_replace('group:', '', $name);
-    $queues_by_group = advancedqueue_admin_queues_by_group();
+    $queues_by_group = advancedqueue_ui_queues_by_group();
     if (empty($queues_by_group[$name])) {
       drupal_set_message(t('No queues found for group %group_name.', array('%group_name' => $name)), 'error');
       drupal_goto('admin/structure/queues');
@@ -242,12 +242,12 @@ function advancedqueue_admin_queue_process_confirm($form, &$form_state, $name) {
 /**
  * Form submission callback: executes queue process.
  *
- * @see advancedqueue_admin_queue_process_confirm()
+ * @see advancedqueue_ui_queue_process_confirm()
  */
-function advancedqueue_admin_queue_process_confirm_submit($form, &$form_state) {
+function advancedqueue_ui_queue_process_confirm_submit($form, &$form_state) {
   if ($form_state['values']['confirm']) {
-    module_load_include('batch.inc', 'advancedqueue_admin', 'includes/advancedqueue_admin');
-    advancedqueue_admin_batch_process($form_state['values']['queue_names'], $form_state['values']['type'], $form_state['values']['name']);
+    module_load_include('batch.inc', 'advancedqueue_ui', 'includes/advancedqueue_ui');
+    advancedqueue_ui_batch_process($form_state['values']['queue_names'], $form_state['values']['type'], $form_state['values']['name']);
   }
 
   $form_state['redirect'] = 'admin/structure/queues';
@@ -256,13 +256,13 @@ function advancedqueue_admin_queue_process_confirm_submit($form, &$form_state) {
 /**
  * Form constructor for the queue deletion confirmation form.
  *
- * @see advancedqueue_admin_menu()
- * @see advancedqueue_admin_queue_delete_confirm_submit()
+ * @see advancedqueue_ui_menu()
+ * @see advancedqueue_ui_queue_delete_confirm_submit()
  */
-function advancedqueue_admin_queue_delete_confirm($form, &$form_state, $name) {
+function advancedqueue_ui_queue_delete_confirm($form, &$form_state, $name) {
   if (strpos($name, 'group:') === 0) {
     $name = str_replace('group:', '', $name);
-    $queues_by_group = advancedqueue_admin_queues_by_group();
+    $queues_by_group = advancedqueue_ui_queues_by_group();
     if (empty($queues_by_group[$name])) {
       drupal_set_message(t('No queues found for group %group_name.', array('%group_name' => $name)), 'error');
       drupal_goto('admin/structure/queues');
@@ -291,12 +291,12 @@ function advancedqueue_admin_queue_delete_confirm($form, &$form_state, $name) {
 /**
  * Form submission callback: executes queue deletion.
  *
- * @see advancedqueue_admin_queue_delete_confirm()
+ * @see advancedqueue_ui_queue_delete_confirm()
  */
-function advancedqueue_admin_queue_delete_confirm_submit($form, &$form_state) {
+function advancedqueue_ui_queue_delete_confirm_submit($form, &$form_state) {
   if ($form_state['values']['confirm']) {
-    module_load_include('batch.inc', 'advancedqueue_admin', 'includes/advancedqueue_admin');
-    advancedqueue_admin_batch_delete($form_state['values']['queue_names'], $form_state['values']['type'], $form_state['values']['name']);
+    module_load_include('batch.inc', 'advancedqueue_ui', 'includes/advancedqueue_ui');
+    advancedqueue_ui_batch_delete($form_state['values']['queue_names'], $form_state['values']['type'], $form_state['values']['name']);
 
     drupal_set_message(t('Deleted all items from @type %name.', array(
       '@type' => $form_state['values']['type'],

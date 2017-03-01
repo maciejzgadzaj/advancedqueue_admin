@@ -1,0 +1,8 @@
+name = Advanced Queue UI
+description = Provides admin user interface for the Advanced Queue module.
+core = 7.x
+package = Other
+configure = admin/structure/queues/settings
+dependencies[] = advancedqueue
+dependencies[] = views_bulk_operations
+files[] = includes/views/handlers/advancedqueue_ui_handler_field_serialized.inc

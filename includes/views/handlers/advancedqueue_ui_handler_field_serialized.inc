@@ -10,7 +10,7 @@
  *
  * @ingroup views_field_handlers
  */
-class advancedqueue_admin_handler_field_serialized extends views_handler_field_serialized {
+class advancedqueue_ui_handler_field_serialized extends views_handler_field_serialized {
 
   function render($values) {
     $value = $values->{$this->field_alias};

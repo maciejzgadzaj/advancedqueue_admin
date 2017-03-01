@@ -1,8 +1,8 @@
-# AdvancedQueue Admin
+# Advanced Queue UI
 
 ## Description
 
-_AdvancedQueue Admin_ module is an extension to [_Advanced Queue_](https://www.drupal.org/project/advancedqueue) module, providing alternative admin UI for viewing and managing queue items.
+_Advanced Queue UI_ module is an extension to [_Advanced Queue_](https://www.drupal.org/project/advancedqueue) module, providing alternative admin user interface for viewing and managing queue items.
 
 
 ## Features

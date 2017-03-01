@@ -1,0 +1,12 @@
+#advancedqueue_ui_queues .group-name,
+#advancedqueue_ui_queues .group-operations {
+    font-weight: bold;
+}
+#advancedqueue_ui_queues .queue-in-group,
+#advancedqueue_ui_queues .queue-operations {
+    padding-left: 2em;
+}
+
+#views-exposed-form-advancedqueue-ui-default .form-item {
+    padding: 3px 0;
+}

@@ -1,13 +1,13 @@
 <?php
 
-define('ADVANCEDQUEUE_ADMIN_GROUP_UNDEFINED', 'Undefined');
+define('ADVANCEDQUEUE_UI_GROUP_UNDEFINED', 'Undefined');
 
-require_once 'includes/advancedqueue_admin.actions.inc';
+require_once 'includes/advancedqueue_ui.actions.inc';
 
 /**
  * Implements hook_entity_info_alter().
  */
-function advancedqueue_admin_entity_info_alter(&$entity_info) {
+function advancedqueue_ui_entity_info_alter(&$entity_info) {
   // Display all properties on the queue item view page.
   $entity_info['advancedqueue_item']['extra fields controller class'] = 'EntityDefaultExtraFieldsController';
 }
@@ -15,13 +15,13 @@ function advancedqueue_admin_entity_info_alter(&$entity_info) {
 /**
  * Implements hook_permission().
  */
-function advancedqueue_admin_permission() {
+function advancedqueue_ui_permission() {
   return array(
-    'advancedqueue_admin view queues' => array(
+    'advancedqueue_ui view queues' => array(
       'title' => t('View queues'),
-      'description' => t('Allow users to access AdvancedQueue Admin pages to view queues and queue items.'),
+      'description' => t('Allow users to access Advanced Queue UI pages to view queues and queue items.'),
     ),
-    'advancedqueue_admin manage queues' => array(
+    'advancedqueue_ui manage queues' => array(
       'title' => t('Manage queues'),
       'description' => t('Allow users to perform actions on queues and queue items.'),
       'restrict access' => TRUE,
@@ -32,16 +32,16 @@ function advancedqueue_admin_permission() {
 /**
  * Implements hook_menu().
  */
-function advancedqueue_admin_menu() {
+function advancedqueue_ui_menu() {
   $items = array();
 
   $items['admin/structure/queues'] = array(
     'title' => 'Queues',
     'description' => 'View and manage Advanced Queue queues and items.',
-    'page callback' => 'advancedqueue_admin_queue_list',
-    'access arguments' => array('advancedqueue_admin view queues'),
+    'page callback' => 'advancedqueue_ui_queue_list',
+    'access arguments' => array('advancedqueue_ui view queues'),
     'type' => MENU_NORMAL_ITEM,
-    'file' => 'includes/advancedqueue_admin.pages.inc',
+    'file' => 'includes/advancedqueue_ui.pages.inc',
   );
 
   $items['admin/structure/queues/list'] = array(
@@ -52,12 +52,12 @@ function advancedqueue_admin_menu() {
 
   $items['admin/structure/queues/all'] = array(
     'title' => 'Items',
-    'page callback' => 'advancedqueue_admin_queue_items',
+    'page callback' => 'advancedqueue_ui_queue_items',
     'page arguments' => array(3),
-    'access arguments' => array('advancedqueue_admin view queues'),
+    'access arguments' => array('advancedqueue_ui view queues'),
     'type' => MENU_LOCAL_TASK,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
-    'file' => 'includes/advancedqueue_admin.pages.inc',
+    'file' => 'includes/advancedqueue_ui.pages.inc',
     'weight' => 1,
   );
 
@@ -75,13 +75,13 @@ function advancedqueue_admin_menu() {
   );
 
   $items['admin/structure/queues/%'] = array(
-    'title callback' => 'advancedqueue_admin_queue_items_title',
+    'title callback' => 'advancedqueue_ui_queue_items_title',
     'title arguments' => array(3),
-    'page callback' => 'advancedqueue_admin_queue_items',
+    'page callback' => 'advancedqueue_ui_queue_items',
     'page arguments' => array(3),
-    'access arguments' => array('advancedqueue_admin view queues'),
+    'access arguments' => array('advancedqueue_ui view queues'),
     'type' => MENU_NORMAL_ITEM,
-    'file' => 'includes/advancedqueue_admin.pages.inc',
+    'file' => 'includes/advancedqueue_ui.pages.inc',
   );
 
   $items['admin/structure/queues/%/items'] = array(
@@ -93,12 +93,12 @@ function advancedqueue_admin_menu() {
   if (module_exists('devel')) {
     $items['admin/structure/queues/%/devel'] = array(
       'title' => 'Devel',
-      'page callback' => 'advancedqueue_admin_queue_devel',
+      'page callback' => 'advancedqueue_ui_queue_devel',
       'page arguments' => array(3),
       'access arguments' => array('access devel information'),
       'type' => MENU_LOCAL_TASK,
       'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
-      'file' => 'includes/advancedqueue_admin.pages.inc',
+      'file' => 'includes/advancedqueue_ui.pages.inc',
       'weight' => 100,
     );
   }
@@ -106,29 +106,29 @@ function advancedqueue_admin_menu() {
   $items['admin/structure/queues/%/process'] = array(
     'title' => 'Process',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('advancedqueue_admin_queue_process_confirm', 3),
-    'access arguments' => array('advancedqueue_admin manage queues'),
+    'page arguments' => array('advancedqueue_ui_queue_process_confirm', 3),
+    'access arguments' => array('advancedqueue_ui manage queues'),
     'type' => MENU_NORMAL_ITEM,
-    'file' => 'includes/advancedqueue_admin.pages.inc',
+    'file' => 'includes/advancedqueue_ui.pages.inc',
   );
 
   $items['admin/structure/queues/%/delete'] = array(
     'title' => 'Delete',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('advancedqueue_admin_queue_delete_confirm', 3),
-    'access arguments' => array('advancedqueue_admin manage queues'),
+    'page arguments' => array('advancedqueue_ui_queue_delete_confirm', 3),
+    'access arguments' => array('advancedqueue_ui manage queues'),
     'type' => MENU_NORMAL_ITEM,
-    'file' => 'includes/advancedqueue_admin.pages.inc',
+    'file' => 'includes/advancedqueue_ui.pages.inc',
   );
 
   $items['admin/structure/queues/%/%'] = array(
-    'title callback' => 'advancedqueue_admin_item_view_title',
+    'title callback' => 'advancedqueue_ui_item_view_title',
     'title arguments' => array(4),
-    'page callback' => 'advancedqueue_admin_item_view',
+    'page callback' => 'advancedqueue_ui_item_view',
     'page arguments' => array(4),
-    'access arguments' => array('advancedqueue_admin view queues'),
+    'access arguments' => array('advancedqueue_ui view queues'),
     'type' => MENU_NORMAL_ITEM,
-    'file' => 'includes/advancedqueue_admin.pages.inc',
+    'file' => 'includes/advancedqueue_ui.pages.inc',
   );
 
   $items['admin/structure/queues/%/%/view'] = array(
@@ -140,12 +140,12 @@ function advancedqueue_admin_menu() {
   if (module_exists('devel')) {
     $items['admin/structure/queues/%/%/devel'] = array(
       'title' => 'Devel',
-      'page callback' => 'advancedqueue_admin_item_devel',
+      'page callback' => 'advancedqueue_ui_item_devel',
       'page arguments' => array(4),
       'access arguments' => array('access devel information'),
       'type' => MENU_LOCAL_TASK,
       'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
-      'file' => 'includes/advancedqueue_admin.pages.inc',
+      'file' => 'includes/advancedqueue_ui.pages.inc',
       'weight' => 100,
     );
   }
@@ -156,11 +156,11 @@ function advancedqueue_admin_menu() {
 /**
  * Implements hook_views_api().
  */
-function advancedqueue_admin_views_api() {
+function advancedqueue_ui_views_api() {
   return array(
     'api' => 3,
     'version' => '3.0',
-    'path' => drupal_get_path('module', 'advancedqueue_admin') . '/includes/views',
+    'path' => drupal_get_path('module', 'advancedqueue_ui') . '/includes/views',
   );
 }
 
@@ -170,7 +170,7 @@ function advancedqueue_admin_views_api() {
  * @return array
  *   An array of all advancedqueue queues grouped by their 'group' property.
  */
-function advancedqueue_admin_queues_by_group() {
+function advancedqueue_ui_queues_by_group() {
   $queues = advancedqueue_get_queues_info();
   ksort($queues);
 
@@ -183,10 +183,10 @@ function advancedqueue_admin_queues_by_group() {
   ksort($queues_by_group);
 
   // Add undefined queues at the end.
-  if (variable_get('advancedqueue_admin_show_undefined_queues', FALSE)) {
+  if (variable_get('advancedqueue_ui_show_undefined_queues', FALSE)) {
     if ($result = db_query('SELECT DISTINCT name FROM {advancedqueue} WHERE name NOT IN (:names) ORDER BY name', array(':names' => array_keys($queues)))->fetchCol()) {
       foreach ($result as $result_item) {
-        $queues_by_group[ADVANCEDQUEUE_ADMIN_GROUP_UNDEFINED][$result_item] = array('group' => ADVANCEDQUEUE_ADMIN_GROUP_UNDEFINED);
+        $queues_by_group[ADVANCEDQUEUE_UI_GROUP_UNDEFINED][$result_item] = array('group' => ADVANCEDQUEUE_UI_GROUP_UNDEFINED);
       }
     }
   }
@@ -203,7 +203,7 @@ function advancedqueue_admin_queues_by_group() {
  * @return object|null
  *   A loaded queue item, or null if not found.
  */
-function advancedqueue_admin_item_load($item_id) {
+function advancedqueue_ui_item_load($item_id) {
   $item = db_select('advancedqueue', 'aq')
     ->fields('aq')
     ->condition('item_id', $item_id, '=')
@@ -221,12 +221,12 @@ function advancedqueue_admin_item_load($item_id) {
  * Implements hook_form_FORM_ID_alter() for views_exposed_form().
  *
  * Updates form #action URL (by default pointing to site base_url, as the
- * advancedqueue_admin form is embedded from advancedqueue_admin_queue_items().
+ * advancedqueue_ui form is embedded from advancedqueue_ui_queue_items().
  *
- * @see advancedqueue_admin_queue_items()
+ * @see advancedqueue_ui_queue_items()
  */
-function advancedqueue_admin_form_views_exposed_form_alter(&$form, &$form_state) {
-  if ($form_state['view']->name == 'advancedqueue_admin') {
+function advancedqueue_ui_form_views_exposed_form_alter(&$form, &$form_state) {
+  if ($form_state['view']->name == 'advancedqueue_ui') {
     $form['#action'] = '/' . current_path();
 
     // Display some filters together in one column.
@@ -242,7 +242,7 @@ function advancedqueue_admin_form_views_exposed_form_alter(&$form, &$form_state)
     // On Queue items page displaying items for all queues, we also have an
     // additional 'Queue name' filter shows, which should be put in the same
     // filter column as 'Item ID/key' and 'Item title/tag'.
-    if (!empty($form_state['view']->args[0]) && $form_state['view']->args[0] == 'all') {
+    if ($form_state['view']->args[0] == 'all') {
       $form['name_machine_name']['#prefix'] = '<div class="filter-group">';
       $form['item_title_tag']['#suffix'] .= '</div>';
     }
@@ -250,18 +250,18 @@ function advancedqueue_admin_form_views_exposed_form_alter(&$form, &$form_state)
 }
 
 /**
- * Implements hook_form_FORM_ID_alter() for views_form_advancedqueue_admin_default().
+ * Implements hook_form_FORM_ID_alter() for views_form_advancedqueue_ui_default().
  *
  * Updates form #action URL (by default pointing to site base_url, as the
- * advancedqueue_admin form is embedded from advancedqueue_admin_queue_items().
+ * advancedqueue_ui form is embedded from advancedqueue_ui_queue_items().
  *
  * Also temporarily sets view's override_url to make sure that batch processing
  * returns to the same URL it started from.
  *
- * @see advancedqueue_admin_queue_items()
+ * @see advancedqueue_ui_queue_items()
  */
-function advancedqueue_admin_form_views_form_advancedqueue_admin_default_alter(&$form, &$form_state) {
-  if ($form_state['build_info']['args'][0]->name == 'advancedqueue_admin') {
+function advancedqueue_ui_form_views_form_advancedqueue_ui_default_alter(&$form, &$form_state) {
+  if ($form_state['build_info']['args'][0]->name == 'advancedqueue_ui') {
     $form['#action'] = request_uri();
     $form_state['build_info']['args'][0]->override_url = current_path();
   }
@@ -278,9 +278,9 @@ function advancedqueue_admin_form_views_form_advancedqueue_admin_default_alter(&
  *   Optional type of message to log and display.
  *   Should be either 'status' or 'error'.
  */
-function advancedqueue_admin_log_message($message, $item, $type = 'status') {
+function advancedqueue_ui_log_message($message, $item, $type = 'status') {
   $variables = array('%item_id' => $item->item_id, '%queue_name' => $item->name);
-  watchdog('advancedqueue_admin', $message, $variables, $type == 'status' ? WATCHDOG_INFO : WATCHDOG_ERROR);
+  watchdog('advancedqueue_ui', $message, $variables, $type == 'status' ? WATCHDOG_INFO : WATCHDOG_ERROR);
   drupal_set_message(t($message, $variables), $type);
 }
 
@@ -289,16 +289,16 @@ function advancedqueue_admin_log_message($message, $item, $type = 'status') {
  *
  * @see advancedqueue_settings_form()
  */
-function advancedqueue_admin_form_advancedqueue_settings_form_alter(&$form, &$form_state, $form_id) {
-  $form['advancedqueue_admin'] = array(
+function advancedqueue_ui_form_advancedqueue_settings_form_alter(&$form, &$form_state, $form_id) {
+  $form['advancedqueue_ui'] = array(
     '#type' => 'fieldset',
-    '#title' => t('AdvancedQueue Admin settings'),
+    '#title' => t('Advanced Queue UI settings'),
     '#collapsible' => TRUE,
   );
-  $form['advancedqueue_admin']['advancedqueue_admin_show_undefined_queues'] = array(
+  $form['advancedqueue_ui']['advancedqueue_ui_show_undefined_queues'] = array(
     '#type' => 'checkbox',
     '#title' => t('Show undefined queues'),
-    '#description' => t('Enabling this option will also show all these queues that are not defined by <code>hook_advanced_queue_info()</code> implementations (for example <em>Update</em> and <em>Views Bulk Operations</em> module queues) in the %undefined_group_name group.', array('%undefined_group_name' => ADVANCEDQUEUE_ADMIN_GROUP_UNDEFINED)),
-    '#default_value' => variable_get('advancedqueue_admin_show_undefined_queues', FALSE),
+    '#description' => t('Enabling this option will also show all these queues that are not defined by <code>hook_advanced_queue_info()</code> implementations (for example <em>Update</em> and <em>Views Bulk Operations</em> module queues) in the %undefined_group_name group.', array('%undefined_group_name' => ADVANCEDQUEUE_UI_GROUP_UNDEFINED)),
+    '#default_value' => variable_get('advancedqueue_ui_show_undefined_queues', FALSE),
   );
 }

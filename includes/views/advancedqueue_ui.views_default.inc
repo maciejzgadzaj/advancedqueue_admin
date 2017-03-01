@@ -3,15 +3,15 @@
 /**
  * Implements hook_views_default_views().
  */
-function advancedqueue_admin_views_default_views() {
+function advancedqueue_ui_views_default_views() {
   $views = array();
 
   $view = new view();
-  $view->name = 'advancedqueue_admin';
+  $view->name = 'advancedqueue_ui';
   $view->description = '';
   $view->tag = 'default';
   $view->base_table = 'advancedqueue';
-  $view->human_name = 'AdvancedQueue Admin';
+  $view->human_name = 'Advanced Queue UI';
   $view->core = 7;
   $view->api_version = '3.0';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
@@ -19,11 +19,11 @@ function advancedqueue_admin_views_default_views() {
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
   $handler->display->display_options['use_more_always'] = FALSE;
-  if (advancedqueue_admin_db_supports_group_concat()) {
+  if (advancedqueue_ui_db_supports_group_concat()) {
     $handler->display->display_options['group_by'] = TRUE;
   }
   $handler->display->display_options['access']['type'] = 'perm';
-  $handler->display->display_options['access']['perm'] = 'administer advancedqueue_admin';
+  $handler->display->display_options['access']['perm'] = 'administer advancedqueue_ui';
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
@@ -171,35 +171,35 @@ function advancedqueue_admin_views_default_views() {
   $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['force_single'] = 0;
   $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['entity_load_capacity'] = '10';
   $handler->display->display_options['fields']['views_bulk_operations']['vbo_operations'] = array(
-    'action::advancedqueue_admin_process_item_action' => array(
+    'action::advancedqueue_ui_process_item_action' => array(
       'selected' => 1,
       'postpone_processing' => 0,
       'skip_confirmation' => 0,
       'override_label' => 0,
       'label' => '',
     ),
-    'action::advancedqueue_admin_mark_item_as_processed_action' => array(
+    'action::advancedqueue_ui_mark_item_as_processed_action' => array(
       'selected' => 1,
       'postpone_processing' => 0,
       'skip_confirmation' => 0,
       'override_label' => 0,
       'label' => '',
     ),
-    'action::advancedqueue_admin_release_item_action' => array(
+    'action::advancedqueue_ui_release_item_action' => array(
       'selected' => 1,
       'postpone_processing' => 0,
       'skip_confirmation' => 0,
       'override_label' => 0,
       'label' => '',
     ),
-    'action::advancedqueue_admin_requeue_item_action' => array(
+    'action::advancedqueue_ui_requeue_item_action' => array(
       'selected' => 1,
       'postpone_processing' => 0,
       'skip_confirmation' => 0,
       'override_label' => 0,
       'label' => '',
     ),
-    'action::advancedqueue_admin_reset_attempt_counter_action' => array(
+    'action::advancedqueue_ui_reset_attempt_counter_action' => array(
       'selected' => 1,
       'postpone_processing' => 0,
       'skip_confirmation' => 0,
@@ -219,7 +219,7 @@ function advancedqueue_admin_views_default_views() {
         ),
       ),
     ),
-    'action::advancedqueue_admin_delete_item_action' => array(
+    'action::advancedqueue_ui_delete_item_action' => array(
       'selected' => 1,
       'postpone_processing' => 0,
       'skip_confirmation' => 0,
@@ -258,7 +258,7 @@ function advancedqueue_admin_views_default_views() {
   $handler->display->display_options['fields']['title']['field'] = 'title';
   $handler->display->display_options['fields']['title']['label'] = 'Title';
   /* Field: GROUP_CONCAT(DISTINCT NULLIF(Queue: Tag, '') SEPARATOR ', ') */
-  if (advancedqueue_admin_db_supports_group_concat()) {
+  if (advancedqueue_ui_db_supports_group_concat()) {
     $handler->display->display_options['fields']['tag']['id'] = 'tag';
     $handler->display->display_options['fields']['tag']['table'] = 'advancedqueue_tags';
     $handler->display->display_options['fields']['tag']['field'] = 'tag';
@@ -440,7 +440,7 @@ function advancedqueue_admin_views_default_views() {
     'data' => 'data',
     'result' => 'result',
   );
-  $translatables['advancedqueue_admin'] = array(
+  $translatables['advancedqueue_ui'] = array(
     t('Master'),
     t('more'),
     t('Apply'),
@@ -495,8 +495,8 @@ function advancedqueue_admin_views_default_views() {
  *   TRUE if current database type supports GROUP_CONCAT() function,
  *   FALSE otherwise.
  *
- * @see advancedqueue_admin_views_default_views()
+ * @see advancedqueue_ui_views_default_views()
  */
-function advancedqueue_admin_db_supports_group_concat() {
+function advancedqueue_ui_db_supports_group_concat() {
   return in_array(Database::getConnection()->databaseType(), array('mysql', 'mysqli', 'sqlite'));
 }
